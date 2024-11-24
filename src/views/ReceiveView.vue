@@ -7,7 +7,7 @@
     <div :style="{ padding: '20px' }">
       <div>
         <vue-qrcode
-          :value="`http://localhost:8080/send/${coin_name}/${eth_address}`"
+          :value="`http://http://1.231.89.30:8080/send/${coin_name}/${tron_address}`"
           :scale="8"
           :style="{ width: '100%' }"
         />
@@ -18,13 +18,13 @@
           type="text"
           class="form-control"
           id="textToCopy"
-          :value="eth_address"
+          :value="tron_address"
           placeholder=""
           :style="{ height: '50px' }"
           ref="textToCopy"
           readonly
         />
-        <label for="floatingInput">ETH address</label>
+        <label for="floatingInput">TRON address</label>
       </div>
       <div>
         <div class="btn-copy" @click="copy">주소 복사</div>
@@ -41,7 +41,7 @@ import { ref } from "vue";
 
 import VueQrcode from "vue-qrcode";
 
-const coin_name = ref("ETH");
+const coin_name = ref("TRON");
 
 const Toast = Swal.mixin({
   toast: true,
@@ -65,6 +65,7 @@ const copy = async () => {
       title: "Copy successfully",
     });
   } catch (error) {
+    console.log(error);
     Toast.fire({
       icon: "error",
       title: "Copy Error",
@@ -72,7 +73,8 @@ const copy = async () => {
   }
 };
 
-const eth_address = localStorage.getItem("eth_address");
+var tron_address = localStorage.getItem("tron_address");
+console.log(tron_address);
 </script>
 
 <style scope>

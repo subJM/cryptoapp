@@ -2,7 +2,7 @@
   <div class="page page--splash" data-page="splash">
     <div class="splash">
       <div class="splash__content">
-        <div class="splash__logo">Crypt<strong>EX</strong></div>
+        <div class="splash__logo">Excel<strong>Vircuous</strong></div>
         <div class="splash__image">
           <img src="images/splash.png" alt="" title="" />
         </div>

@@ -3,7 +3,7 @@
   <header class="header header--fixed">
     <div class="header__inner">
       <div class="header__logo header__logo--text">
-        <router-link to="/home"> Crypt<strong>EX</strong> </router-link>
+        <router-link to="/home"> Excel<strong>Virtuous</strong> </router-link>
       </div>
       <div class="header__icon open-panel" data-panel="left">
         <!-- <img src="/images/icons/user.svg" alt="image" title="image" /> -->
@@ -15,7 +15,7 @@
             data-bs-toggle="dropdown"
             aria-expanded="false"
           >
-            Dropdown link
+            MENU
           </a>
 
           <ul class="dropdown-menu">
@@ -27,7 +27,6 @@
               </a>
             </li>
             <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
           </ul>
         </div>
       </div>

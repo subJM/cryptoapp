@@ -24,7 +24,7 @@
       <!-- END SLIDER AUTO 2 -->
       <!-- NOTICE -->
       <HomeNoticeVue></HomeNoticeVue>
-      <HomeBannerVue></HomeBannerVue>
+      <!-- <HomeBannerVue></HomeBannerVue> -->
     </div>
   </div>
   <BottomView></BottomView>
@@ -35,7 +35,7 @@ import TopNav from "@/components/templates/inc/TopNav.vue";
 import AccountBalance from "@/components/templates/main/HomeTotalBalance.vue";
 import HomeMiddleButton from "@/components/templates/main/HomeMiddleButton.vue";
 import HomePortfolioVue from "@/components/templates/main/HomePortfolio.vue";
-import HomeBannerVue from "@/components/templates/main/HomeBanner.vue";
+// import HomeBannerVue from "@/components/templates/main/HomeBanner.vue";
 
 import BottomView from "@/components/templates/inc/BottomView.vue";
 

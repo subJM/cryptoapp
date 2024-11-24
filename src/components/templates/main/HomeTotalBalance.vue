@@ -1,7 +1,7 @@
 <template>
   <div class="account-info">
     <div class="account-info__title">TOTAL BALANCE</div>
-    <div class="account-info__total">$1,400.00</div>
+    <div class="account-info__total">{{ balance }} EVC</div>
     <div class="account-info__stats">
       <span class="plus">+$235</span> | <span class="plus">+12%</span>
     </div>
@@ -16,6 +16,40 @@
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { onMounted, ref } from "vue";
+import axios from "axios";
+
+const walletList = ref("");
+const balance = ref(0);
+
+//지갑 잔고 DB에서 가져오기
+const getAddressBalance = async () => {
+  const form = {
+    user_srl: localStorage.getItem("user_srl"),
+    // token_name: "ETH",
+  };
+  const res = await axios.post(
+    "http://1.231.89.30:3000/wallet/getAddressBalance",
+    form
+  );
+  const resData = res.data;
+  console.log(res.data);
+  if (resData.result == "success") {
+    walletList.value = resData.data;
+  }
+  walletList.value.forEach(async (el) => {
+    if (el.token_name == "EVC") {
+      balance.value = el.balance;
+      console.log(balance.value);
+    }
+  });
+};
+
+onMounted(() => {
+  // getEthAddress();
+  getAddressBalance();
+});
+</script>
 
 <style lang="scss" scoped></style>

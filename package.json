@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
+    "server": "vue-cli-service serve  --host 1.231.89.30",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
@@ -13,7 +14,7 @@
     "html5-qrcode": "^2.3.8",
     "moment-timezone": "^0.5.45",
     "path": "^0.12.7",
-    "sweetalert2": "^11.10.6",
+    "sweetalert2": "^11.6.13",
     "swiper": "^11.0.7",
     "vue": "^3.2.13",
     "vue-qrcode": "^2.2.2",
@@ -22,8 +23,8 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
-    "@vue/cli-plugin-babel": "~5.0.0",
-    "@vue/cli-plugin-eslint": "~5.0.0",
+    "@vue/cli-plugin-babel": "^5.0.8",
+    "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-service": "^5.0.8",
     "eslint": "^7.32.0",

@@ -9,11 +9,11 @@
         <div class="login-form">
           <form id="LoginForm" method="post" @submit.prevent="login">
             <div class="login-form__row">
-              <label class="login-form__label">Username</label>
+              <label class="login-form__label">User ID</label>
               <input
                 type="text"
                 name="Username"
-                v-model="form.username"
+                v-model="form.user_id"
                 value=""
                 class="login-form__input required"
               />
@@ -62,19 +62,24 @@ import TopBackVue from "@/components/templates/inc/TopBack.vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
 
+// const form = reactive({
+//   user_id: "thswhdals",
+//   password: "1234",
+// });
 const form = reactive({
-  user_id: "thswhdals",
-  password: "1234",
+  user_id: "",
+  password: "",
 });
 const login = async () => {
   try {
     const res = await axios.post(
-      "http://localhost:3000/users/account/login",
+      "http://1.231.89.30:3000/users/account/login",
       form
     );
     // console.log(res);
     const resData = res.data;
     const resultData = resData.data[0];
+    console.log(resultData);
     if (resData.result == "success") {
       localStorage.setItem("user_srl", resultData.id);
       localStorage.setItem("user_id", resultData.user_id);
@@ -83,6 +88,7 @@ const login = async () => {
       router.push("/home");
     }
   } catch (error) {
+    router.push("/");
     console.log(error);
   }
 };

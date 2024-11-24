@@ -2,7 +2,9 @@
   <div class="d-flex justify-content-between align-items-center p-3">
     <div :style="{ fontSize: '16px' }">My Portfolio</div>
 
-    <div @click.prevent="reloadBalance"><i class="fa-solid fa-rotate"></i></div>
+    <div @click.prevent="reloadBalance" :class="{ loading: isLoading }">
+      <i class="fa-solid fa-rotate"></i>
+    </div>
   </div>
   <swiper
     :effect="'cards'"
@@ -52,10 +54,6 @@
                     >{{ formatBalance(wallet.balance) }}
                     {{ wallet.token_name }}</b
                   >
-                </div>
-                <div class="caption__info">
-                  <strong>(ex) $72,500</strong>
-                  <span class="minus"> -2%</span>
                 </div>
               </router-link>
             </div>
@@ -113,21 +111,24 @@ const router = useRouter();
 const modules = [EffectCards];
 const address = ref("");
 const balance = ref("");
-const walletList = ref("");
+const isLoading = ref(false);
+const walletList = ref([]);
 const user_id = localStorage.getItem("user_id");
 if (user_id == "") {
   router.push("/");
 }
-//이더리움 주소 가져오기
-const getEthAddress = async () => {
+//이더리움 주소 가져오기 s
+const getTronAddress = async () => {
   try {
     const form = { user_id: user_id };
     var response = await axios.post(
-      "http://localhost:3000/users/getEthAddress",
+      "http://1.231.89.30:3000/tron/getTronAddress",
       form
     );
-    localStorage.setItem("eth_address", response.data);
-    address.value = response.data;
+    // localStorage.setItem("eth_address", response.data);
+    localStorage.setItem("tron_address", response.data.address);
+
+    address.value = response.data.address;
   } catch (error) {
     console.error("Error fetching the address:", error);
   }
@@ -137,10 +138,11 @@ const getEthAddress = async () => {
 const getAddressBalance = async () => {
   const form = {
     user_srl: localStorage.getItem("user_srl"),
+    address: localStorage.getItem("tron_address"),
     // token_name: "ETH",
   };
   const res = await axios.post(
-    "http://localhost:3000/wallet/getAddressBalance",
+    "http://1.231.89.30:3000/wallet/getAddressBalance",
     form
   );
   const resData = res.data;
@@ -150,20 +152,25 @@ const getAddressBalance = async () => {
 };
 
 onMounted(() => {
-  getEthAddress().then(async () => {
-    try {
-      //지갑주소로 체인에 연결해 잔고 가져오기
-      const form = { address: address.value };
-      var response = await axios.post(
-        "http://localhost:3000/users/getAddressBalance",
-        form
-      );
-      balance.value = Number(response.data.balance).toFixed(3);
-    } catch (error) {
-      console.error("Error fetching the- address:", error);
-    }
-  });
-  getAddressBalance();
+  getTronAddress()
+    .then(async () => {
+      try {
+        //지갑주소로 체인에 연결해 잔고 가져오기
+        const form = { address: address.value };
+        var response = await axios.post(
+          "http://1.231.89.30:3000/wallet/getAddressBalance",
+          form
+        );
+        balance.value = Number(response.data.balance).toFixed(3);
+      } catch (error) {
+        console.error("Error fetching the- address:", error);
+      }
+    })
+    .then(async () => {
+      reloadBalance().then(async () => {
+        getAddressBalance();
+      });
+    });
 });
 
 const formatBalance = (val) => {
@@ -171,37 +178,87 @@ const formatBalance = (val) => {
 };
 
 const reloadBalance = async () => {
+  if (isLoading.value) return; // 로딩 중인 경우 중복 호출 방지
+
+  isLoading.value = true; // 로딩 상태 활성화
+
   try {
-    walletList.value.forEach(async (el) => {
-      let form = {};
-      let url = "";
-      if (el.token_name == "ETH") {
-        form = { address: address.value };
-        url = "http://localhost:3000/users/getAddressBalance";
-      } else {
-        form = {
-          token_name: el.token_name,
-          address: el.address,
-        };
-        url = "http://localhost:3000/token/getBalance";
-      }
-      var response = await axios.post(url, form);
-      balance.value = response.data.balance;
-      if (el.balance != response.data.balance) {
-        const updateForm = {
-          user_srl: localStorage.getItem("user_srl"),
-          token_name: el.token_name,
-          balance: response.data.balance,
-        };
-        const updateUrl = "http://localhost:3000/wallet/updateWallet";
-        await axios.post(updateUrl, updateForm);
-      }
-      window.location.reload();
-    });
+    await performReloadBalance();
   } catch (error) {
-    console.error("Error fetching the address:", error);
+    console.error("Error reloading balance:", error);
+  } finally {
+    isLoading.value = false; // 로딩 상태 비활성화
   }
 };
+
+const performReloadBalance = async () => {
+  try {
+    for (const el of walletList.value) {
+      let form = {};
+      let url = "";
+      console.log("performReloadBalance" + el.token_name);
+      // 토큰별 요청 URL과 데이터 설정
+      switch (el.token_name) {
+        case "ETH":
+          form = { address: address.value };
+          url = "http://1.231.89.30:3000/wallet/getAddressBalance";
+          break;
+        case "EVC":
+          form = {
+            userid: user_id,
+            address: localStorage.getItem("tron_address"),
+          };
+          url = "http://1.231.89.30:3000/tron/getAddressTokenBalance";
+          break;
+        case "TRON":
+          form = {
+            userid: user_id,
+            address: localStorage.getItem("tron_address"),
+          };
+          url = "http://1.231.89.30:3000/tron/getAddressBalance";
+          break;
+        case "LOTT":
+          form = {
+            userid: user_id,
+            address: address.value,
+          };
+          url = "http://1.231.89.30:3000/lott/getLottBalance";
+          break;
+        default:
+          continue; // 정의되지 않은 토큰은 스킵
+      }
+
+      // 잔액 갱신 요청 및 처리
+      try {
+        const response = await axios.post(url, form);
+        const newBalance = response.data.balance;
+        // console.log(el.balance);
+        // console.log(newBalance);
+        if (el.balance != newBalance) {
+          // 잔액 변경된 경우 업데이트 요청
+          const updateForm = {
+            user_srl: localStorage.getItem("user_srl"),
+            user_id: user_id,
+            token_name: el.token_name,
+            beforeBalance: el.balance,
+            balance: newBalance,
+            address: localStorage.getItem("tron_address"),
+          };
+          const updateUrl = "http://1.231.89.30:3000/wallet/updateWallet";
+          await axios.post(updateUrl, updateForm);
+          window.location.reload();
+        }
+      } catch (error) {
+        console.error(`Error updating balance for ${el.token_name}:`, error);
+      }
+    }
+  } catch (error) {
+    console.error("Error in performReloadBalance:", error);
+  }
+};
+setInterval(async () => {
+  performReloadBalance();
+}, 30000);
 </script>
 <style scoped>
 .swiper {
@@ -215,7 +272,10 @@ const reloadBalance = async () => {
   height: 230px;
   padding: 0px;
 }
-
+.loading {
+  cursor: not-allowed; /* 로딩 중일 때 클릭 비활성화 스타일 */
+  opacity: 0.5; /* 시각적 피드백 */
+}
 .swiper-slide {
   display: flex;
   align-items: center;

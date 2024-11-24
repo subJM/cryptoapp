@@ -7,7 +7,8 @@
         </router-link>
       </li>
       <li>
-        <router-link to="/list">
+        <!-- <router-link to="/list"> -->
+        <router-link to="#">
           <img src="/images/icons/stats.svg" alt="" title="" />
         </router-link>
       </li>
@@ -18,7 +19,8 @@
         </router-link>
       </li>
       <li>
-        <router-link to="/notice" class="open-popup" data-popup="notifications">
+        <!-- <router-link to="/notice" class="open-popup" data-popup="notifications"> -->
+        <router-link to="#" class="open-popup" data-popup="notifications">
           <img src="/images/icons/notifications.svg" alt="" title="" />
           <i
             ><span

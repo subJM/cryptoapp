@@ -102,7 +102,8 @@ router.beforeEach((to) => {
   if (!requiresAuth) {
     if (isLoggedIn) {
       // 로그인이 필요한 페이지이고, 로그인되어 있지 않다면 로그인 페이지로 리다이렉트
-      router.push("/");
+      // router.push("/");
+      console.log("test");
     }
   }
 });

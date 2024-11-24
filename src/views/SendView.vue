@@ -3,6 +3,7 @@
   <!-- PAGE CONTENT -->
   <div
     class="page__content page__content--with-header page__content--with-bottom-nav"
+    style="height: 100%"
   >
     <h2 class="page__title">Transfer</h2>
     <div class="fieldset">
@@ -16,8 +17,10 @@
                 name="select_coin"
                 class="required text-center"
               >
-                <option value="ETH" selected>ETH (Ethereum)</option>
-                <option value="BTC">BTC (Bitcoin)</option>
+                <option value="EVC" selected>EVC (TRON)</option>
+                <option value="TRON" selected>TRON (TRX)</option>
+                <!-- <option value="ETH">ETH (Ethereum)</option>
+                <option value="BTC">BTC (Bitcoin)</option> -->
               </select>
             </div>
           </div>
@@ -80,7 +83,7 @@
             </span>
           </div>
 
-          <div class="form__coin-total">$ 2,465.00</div>
+          <!-- <div class="form__coin-total">2,465.00 LOTT</div> -->
         </form>
       </div>
     </div>
@@ -106,6 +109,14 @@
             class="form__input required text-end"
             readonly
           />
+          <span v-show="TRONbalance < 5"
+            >TRON이 10보다 작으면 전송이 실패할 수 있습니다 (
+            <input
+              :value="`현재 ${TRONbalance} TRX`"
+              :readonly="true"
+              style="background-color: transparent; color: red"
+            />)</span
+          >
         </div>
       </div>
     </div>
@@ -115,14 +126,78 @@
         :style="{
           height: '50px',
           fontSize: '16px',
-          backgroundColor: 'rgb(205 191 221);',
+          backgroundColor: isDisabled
+            ? 'rgb(200, 200, 200)' // 비활성화 시 색상
+            : 'rgb(205 191 221)',
           borderRadius: '25px',
         }"
         :disabled="isDisabled"
-        @click.prevent="sendToken"
+        @click.prevent="Toast"
       >
         Send Token
       </button>
+    </div>
+    <h2 class="page__title pt-5">History</h2>
+
+    <!-- 최근 전송 히스토리 -->
+    <div
+      class="d-flex justify-content-center align-items-center"
+      v-if="sendHistory == ''"
+      :style="{ height: '80%' }"
+    >
+      <div>거래내역이 없습니다</div>
+    </div>
+    <div class="cards cards--11">
+      <div
+        v-for="history in sendHistoryData"
+        :key="history.id"
+        :style="{ width: '100%' }"
+      >
+        <div
+          class="text-start"
+          :style="{
+            color: '#C7C7C7',
+            fontSize: '12px',
+          }"
+          v-if="history.departDate"
+        >
+          {{ changeDate(history.create_at) }}
+        </div>
+        <a class="card-coin" href="#">
+          <div class="card-coin__logo">
+            <!-- <img src="/images/icons/minus-solid.svg" alt="" title="" /> -->
+            <img :src="`/images/icons/${history.status}.png`" alt="" title="" />
+            <!-- <span
+              class="me-4"
+              :style="{
+                fontSize: '12px',
+              }"
+              >{{ history.status }}</span
+            > -->
+            <span
+              class="text-start"
+              :style="{
+                fontSize: '12px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                width: '130px',
+              }"
+            >
+              <!-- <span v-if="history.IsExternalTrade == 'yes'">외부</span>
+              <span v-if="history.IsExternalTrade == 'no'">내부</span> -->
+              {{ history.to_address }}
+              <b>{{ changeTime(history.create_at) }}</b>
+            </span>
+          </div>
+          <div class="card-coin__price">
+            <strong :style="{ fontSize: '12px' }"
+              >{{ history.amount }} {{ history.token_name }}</strong
+            ><span class="plus" :style="{ fontSize: '12px' }"
+              >{{ history.usedFee }} Fee</span
+            >
+          </div>
+        </a>
+      </div>
     </div>
   </div>
 </template>
@@ -134,82 +209,60 @@ import axios from "axios";
 import { onMounted, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
+import Swal from "sweetalert2";
+import moment from "moment-timezone";
 const router = useRouter();
 const route = useRoute();
 
-console.log(route.params.address);
-
 const address = ref("");
 const balance = ref("");
+const TRONbalance = ref("");
 const to_address = ref(route.params.address);
 const amount = ref("0");
-const token_name = ref(route.params.coinName);
-const isDisabled = ref(false);
+const token_name = ref("");
+const estimated = ref(0);
 
-const selectedCoin = ref("ETH");
+const sendHistoryData = ref([]);
+const departDate = ref(true);
+const create_date = ref("");
+
+//클릭 방지
+const isDisabled = ref(true);
+
+const selectedCoin = ref("EVC");
 const icon_url = ref(`/images/logos/${selectedCoin.value}.png`);
 
-let tokenList = [];
-let isToken = true;
+let tokenList = ref([]);
 
-// 두번 클릭 방지
-let isClicked = false;
+//토큰 리스트 보기
+let isToken = false;
 
-async function handleClick() {
-  if (isClicked) return; // Ignore clicks if already clicked
-  isClicked = true;
-
-  // Handle click action here
-
-  setTimeout(() => {
-    isClicked = false; // Re-enable clicking after 500ms
-  }, 1000);
-}
-
-const sendToken = async () => {
-  try {
-    console.log("sendtoken");
-    await handleClick();
-    // var RequestApi = "http://localhost:3000/token/sendETH";
-    // if (token_name.value != "ETH") {
-    //   RequestApi = "http://localhost:3000/token/sendToken";
-    // }
-    var RequestApi = "http://localhost:3000/token/test2";
-
-    const sendForm = {
-      user_srl: localStorage.getItem("user_srl"),
-      user_id: user_id,
-      from_address: address.value,
-      to_address: to_address.value,
-      token_name: token_name.value,
-      amount: amount.value,
-    };
-    requestCheck(sendForm);
-    var response = await axios.post(RequestApi, sendForm);
-    var sendResult = response.data;
-    if (sendResult.result == "success") {
-      // router.push("/home");
-      window.location.reload();
-    }
-  } catch (error) {
-    console.log("error: " + error);
-  }
-};
+//TQoSpRDcRMqdhnJmSPuqaspmyWBJRcvbVP
 
 watch(selectedCoin, (newSelectedCoin) => {
   icon_url.value = `/images/logos/${newSelectedCoin}.png`;
-  if (newSelectedCoin != "ETH") {
-    isToken = false;
-  } else {
-    isToken = true;
-  }
+  // if (newSelectedCoin != "ETH") {
+  //   isToken = false;
+  // } else {
+  //   isToken = true;
+  // }
+  // if (selectedCoin.value == "TRX") {
+  // }
+  console.log(selectedCoin.value);
+  getAddress().then(async () => {
+    getBalance();
+    getSendTRONHistory();
+  });
 });
 watch(token_name, () => {
-  if (selectedCoin.value == "ETH") {
-    getAddress().then(async () => {
-      getBalance();
-    });
-  }
+  // console.log(selectedCoin);
+  // if (selectedCoin.value == "TRON") {
+  //   getAddress().then(async () => {
+  //     getBalance();
+  //   });
+  //   console.log("check");
+  //   console.log(balance.value);
+  // }
 });
 
 const user_id = localStorage.getItem("user_id");
@@ -219,13 +272,14 @@ if (user_id == "") {
 
 const getAddress = async () => {
   try {
-    const eth_address = localStorage.getItem("eth_address");
-    if (eth_address != null) {
-      address.value = eth_address;
+    const tron_address = localStorage.getItem("tron_address");
+
+    if (tron_address != null) {
+      address.value = tron_address;
     } else {
       const form = { user_id: user_id };
       var response = await axios.post(
-        "http://localhost:3000/users/getAddress",
+        "http://1.231.89.30:3000/users/getAddress",
         form
       );
       address.value = response.data;
@@ -241,9 +295,10 @@ const getHaveCoin = async () => {
     const form = {
       user_srl: localStorage.getItem("user_srl"),
     };
+    console.log(form);
 
     var res = await axios.post(
-      "http://localhost:3000/token/getTokenList",
+      "http://1.231.89.30:3000/token/getTokenList",
       form
     );
     const result = res.data;
@@ -256,21 +311,21 @@ const getHaveCoin = async () => {
 
 const getBalance = async () => {
   try {
-    let form = {};
-    let url = "";
-    isDisabled.value = true;
-    if (selectedCoin.value == "ETH") {
-      if (token_name.value == "ETH") {
-        form = { address: address.value };
-        url = "http://localhost:3000/users/getAddressBalance";
-      } else {
-        form = {
-          token_name: token_name.value,
-          address: address.value,
-        };
-        url = "http://localhost:3000/token/getBalance";
-      }
+    var form = {};
+    var url = "";
+
+    isDisabled.value = true; //클릭방지
+    if (selectedCoin.value == "TRON") {
+      form = { address: address.value };
+      url = "http://1.231.89.30:3000/tron/getAddressBalance";
+    } else {
+      form = {
+        token_name: selectedCoin.value,
+        address: address.value,
+      };
+      url = "http://1.231.89.30:3000/tron/getAddressTokenBalance";
     }
+    console.log(form);
     var response = await axios.post(url, form);
     balance.value = response.data.balance;
     isDisabled.value = false;
@@ -279,23 +334,198 @@ const getBalance = async () => {
   }
 };
 
+const getTRONBalance = async () => {
+  try {
+    var form = {};
+    var url = "";
+
+    form = { address: address.value };
+    url = "http://1.231.89.30:3000/tron/getAddressBalance";
+
+    console.log(form);
+    var response = await axios.post(url, form);
+    TRONbalance.value = response.data.balance;
+    console.log("getTRONBalance : " + TRONbalance.value);
+  } catch (error) {
+    console.error("Error fetching the address:", error);
+  }
+};
+
+//보낸 내역 체크
+const getSendTRONHistory = async () => {
+  try {
+    var form = {};
+    var url = "";
+
+    form = {
+      user_srl: localStorage.getItem("user_srl"),
+      user_id: user_id,
+      coin_name: selectedCoin.value,
+      address: address.value,
+      type: "withdraw",
+    };
+    url = "http://1.231.89.30:3000/tron/getAddressSendHistory";
+
+    var response = await axios.post(url, form);
+    let history = [];
+    var responseData = response.data;
+    if (responseData.result == "success") {
+      responseData.data.forEach((el) => {
+        if (changeDate(el.create_at) != create_date.value) {
+          create_date.value = changeDate(el.create_at);
+          el.departDate = true;
+        } else {
+          departDate.value = false;
+          el.departDate = false;
+        }
+        el.amount = Number(el.amount).toFixed(3);
+        el.usedFee = Number(el.usedFee).toFixed(5);
+        history.push(el);
+      });
+    }
+
+    sendHistoryData.value = history;
+  } catch (error) {
+    console.error("Error fetching the address:", error);
+  }
+};
+
+const changeDate = (datetime) => {
+  return moment(datetime).tz("Asia/Seoul").format("YY.MM.DD");
+};
+const changeTime = (datetime) => {
+  return moment(datetime).tz("Asia/Seoul").format("MM월DD일 HH시mm분");
+};
+
+const Toast = async () => {
+  if (
+    balance.value == 0 ||
+    TRONbalance.value < 10 ||
+    balance.value < amount.value + 10
+  ) {
+    Swal.fire({
+      title: "잔고 부족!",
+      text: "잔고를 확인해주세요",
+      icon: "question",
+    });
+    return;
+  }
+  var url = "";
+  const form = {
+    user_srl: localStorage.getItem("user_srl"),
+    user_id: user_id,
+    from_address: address.value,
+    to_address: to_address.value,
+    token_name: selectedCoin.value,
+    amount: amount.value,
+  };
+
+  url = "http://1.231.89.30:3000/tron/energytest";
+
+  await axios.post(url, form).then((response) => {
+    estimated.value = response.data.estimated.trxCost;
+    Swal.fire({
+      title: "코인을 전송하시겠습니까?",
+      text: "예상 수수료: " + estimated.value,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, send it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        // sendToken을 호출할 때 익명 함수로 감싸기
+        try {
+          sendToken();
+        } catch (error) {
+          Swal.fire({
+            title: "Error!",
+            text: "코인 전송에 실패했습니다.",
+            icon: "error",
+          });
+        }
+      }
+    });
+  });
+};
+
+var test = "TypeError: Cannot read properties of undefined (reading 'result')";
+console.log("test : " + test.includes("Transaction not found"));
+
+const sendToken = async () => {
+  if (isDisabled.value) return; // 중복 클릭 방지
+
+  isDisabled.value = true; // 버튼 비활성화
+
+  try {
+    var RequestApi = "http://1.231.89.30:3000/tron/transfer";
+    if (selectedCoin.value !== "TRON") {
+      RequestApi = "http://1.231.89.30:3000/tron/transferToken";
+    }
+
+    const sendForm = {
+      user_srl: localStorage.getItem("user_srl"),
+      user_id: user_id,
+      from_address: address.value,
+      to_address: to_address.value,
+      token_name: selectedCoin.value,
+      amount: amount.value,
+    };
+
+    // 입력 데이터 검증
+    await requestCheck(sendForm);
+
+    // 송금 요청
+    await axios.post(RequestApi, sendForm).then(async (res) => {
+      const sendResult = res.data;
+      if (sendResult.result == "success") {
+        Swal.fire({
+          title: "SENDING!",
+          text: "코인이 전송되었습니다",
+          icon: "success",
+        });
+      } else {
+        Swal.fire({
+          title: "Error!",
+          text: "코인 전송에 실패했습니다.",
+          icon: "error",
+        });
+      }
+    });
+  } catch (error) {
+    // 예외 처리
+    console.error("송금 중 오류 발생:", error.message || error);
+    Swal.fire({
+      title: "Error!",
+      text: "코인 전송에 실패했습니다.",
+      icon: "error",
+    });
+  } finally {
+    // 항상 버튼을 다시 활성화
+    isDisabled.value = false;
+  }
+};
+
 onMounted(() => {
+  getHaveCoin();
   getAddress().then(async () => {
     getBalance();
+    getSendTRONHistory(); //히스토리 가져오기
+    getTRONBalance();
   });
-
-  getHaveCoin();
 });
 
-const requestCheck = (sendForm) => {
+const requestCheck = async (sendForm) => {
   if (
-    sendForm.user_id === "" ||
-    sendForm.from_address === "" ||
-    sendForm.to_address === "" ||
-    sendForm.token_name === "" ||
-    sendForm.amount === ""
+    !sendForm.user_id ||
+    !sendForm.user_srl ||
+    !sendForm.from_address ||
+    !sendForm.to_address ||
+    !sendForm.token_name ||
+    !sendForm.amount ||
+    parseFloat(sendForm.amount) <= 0 // 송금 금액이 0 이하인 경우 방지
   ) {
-    throw "Please fill in the empty space";
+    throw "Please fill in the empty space or check the input values.";
   }
 };
 </script>
@@ -311,4 +541,3 @@ option {
   width: calc(100% - 65px);
 }
 </style>
-useRoute, useRoute,
