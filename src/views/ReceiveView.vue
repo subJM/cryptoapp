@@ -7,7 +7,7 @@
     <div :style="{ padding: '20px' }">
       <div>
         <vue-qrcode
-          :value="`http://http://1.231.89.30:8080/send/${coin_name}/${tron_address}`"
+          :value="`http://evc-w.io/send/${coin_name}/${tron_address}`"
           :scale="8"
           :style="{ width: '100%' }"
         />
@@ -35,13 +35,14 @@
 <script setup>
 import TopBack from "@/components/templates/inc/TopBack.vue";
 import Swal from "sweetalert2";
-import { ref } from "vue";
-
+import { ref, onMounted } from "vue";
+import axios from "axios";
 // or via CommonJS
 
 import VueQrcode from "vue-qrcode";
 
 const coin_name = ref("TRON");
+const tron_address = ref(localStorage.getItem("tron_address"));
 
 const Toast = Swal.mixin({
   toast: true,
@@ -73,8 +74,30 @@ const copy = async () => {
   }
 };
 
-var tron_address = localStorage.getItem("tron_address");
-console.log(tron_address);
+onMounted(() => {
+  recreate_account();
+});
+
+const recreate_account = async () => {
+  console.log(tron_address.value);
+  if (tron_address.value == "" || tron_address.value == undefined) {
+    const form = {
+      user_id: localStorage.getItem("user_id"),
+      user_srl: localStorage.getItem("user_srl"),
+    };
+    var response = await axios.post(
+      "http://1.234.2.54:3000/tron/recreate/account",
+      form
+    );
+    var res = response.data;
+    if (res.result == "success") {
+      localStorage.setItem("tron_address", res.address);
+      tron_address.value = res.address;
+      console.log(res.address);
+      window.location.reload();
+    }
+  }
+};
 </script>
 
 <style scope>

@@ -13,7 +13,7 @@
               <input
                 type="text"
                 name="user_id"
-                v-model="form.user_id"
+                v-model="user_id"
                 value=""
                 class="login-form__input required"
               />
@@ -23,7 +23,7 @@
               <input
                 type="text"
                 name="username"
-                v-model="form.username"
+                v-model="username"
                 value=""
                 class="login-form__input required"
               />
@@ -33,7 +33,7 @@
               <input
                 type="text"
                 name="email"
-                v-model="form.email"
+                v-model="email"
                 value=""
                 class="login-form__input required email"
               />
@@ -43,7 +43,7 @@
               <input
                 type="password"
                 name="password"
-                v-model="form.password"
+                v-model="password"
                 value=""
                 class="login-form__input required"
               />
@@ -55,6 +55,7 @@
                 class="login-form__submit button button--main button--full"
                 id="submit"
                 value="SIGN UP"
+                :disabled="isDisabled"
               />
             </div>
           </form>
@@ -65,44 +66,65 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
-import axios from "axios";
+import { ref } from "vue";
 import TopBackVue from "@/components/templates/inc/TopBack.vue";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
+import axios from "axios";
 const router = useRouter();
 
-const form = reactive({
-  user_id: "",
-  username: "",
-  email: "",
-  password: "",
-});
+const isDisabled = ref(false);
+
+const user_id = ref("");
+const username = ref("");
+const email = ref("");
+const password = ref("");
 
 const signup = async () => {
+  if (isDisabled.value == true) {
+    return;
+  }
+  isDisabled.value = true;
+
   // const form = {
-  //   user_srl: localStorage.getItem("user_srl"),
-  //   // token_name: "ETH",
+  //   user_id: user_id.value,
+  //   username: username.value,
+  //   email: email.value,
+  //   password: password.value,
   // };
+
+  // const res = await axios.post(
+  //   "http://1.234.2.54:3000/users/account/signin",
+  //   form
+  // );
+  // const resData = res.data;
+  // console.log(resData);
+  // if (resData == "success") {
+  const form = {
+    user_id: user_id.value,
+    username: username.value,
+    email: email.value,
+    password: password.value,
+  };
   requestCheck(form);
-  const res = await axios.post(
-    "http://1.231.89.30:3000/users/account/signin",
+
+  const tronAccount = await axios.post(
+    "http://1.234.2.54:3000/tron/create_account",
     form
   );
-  const resData = res.data;
-  if (resData == "success") {
-    const tronAccount = await axios.post(
-      "http://1.231.89.30:3000/tron/create/account",
-      form
-    );
-    if (tronAccount.data == "success") {
-      router.push("/login");
-    }
-  } else if (resData == "exist") {
+  console.log("지갑생성완료");
+  console.log(tronAccount.data);
+  if (tronAccount.data == "success") {
+    router.push("/login");
+  }
+  // } else
+  if (tronAccount.data == "exist") {
     Swal.fire({
       icon: "error",
-      title: "Oops...",
-      text: "이미 아이디가 존재합니다!",
+      title: "ERROR",
+      text: "아이디 또는 이메일이 존재합니다!",
+    }).then(() => {
+      window.location.reload();
     });
   }
 };
@@ -114,7 +136,11 @@ const requestCheck = (sendForm) => {
     !sendForm.email ||
     !sendForm.password
   ) {
-    throw "빈 곳을 입력해주세요";
+    Swal.fire({
+      icon: "error",
+      title: "ERROR",
+      text: "빈 곳을 입력해주세요",
+    });
   }
 };
 </script>

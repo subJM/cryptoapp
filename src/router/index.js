@@ -12,6 +12,7 @@ import NoticeDetailView from "@/views/NoticeDetailView.vue";
 import KYCView from "@/views/KYCView.vue";
 import ReceiveView from "@/views/ReceiveView.vue";
 import ScanView from "@/views/ScanView.vue";
+import StakingView from "@/views/StakingView.vue";
 const routes = [
   {
     path: "/",
@@ -88,6 +89,11 @@ const routes = [
     path: "/kyc",
     name: "kyc",
     component: KYCView,
+  },
+  {
+    path: "/staking",
+    name: "staking",
+    component: StakingView,
   },
 ];
 

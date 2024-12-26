@@ -278,10 +278,7 @@ const getAddress = async () => {
       address.value = tron_address;
     } else {
       const form = { user_id: user_id };
-      var response = await axios.post(
-        "http://1.231.89.30:3000/users/getAddress",
-        form
-      );
+      var response = await axios.post("http://1.234.2.54:3000/users/getAddress", form);
       address.value = response.data;
     }
   } catch (error) {
@@ -295,12 +292,9 @@ const getHaveCoin = async () => {
     const form = {
       user_srl: localStorage.getItem("user_srl"),
     };
-    console.log(form);
+    // console.log(form);
 
-    var res = await axios.post(
-      "http://1.231.89.30:3000/token/getTokenList",
-      form
-    );
+    var res = await axios.post("http://1.234.2.54:3000/token/getTokenList", form);
     const result = res.data;
     tokenList = result.data;
     isDisabled.value = false;
@@ -317,13 +311,13 @@ const getBalance = async () => {
     isDisabled.value = true; //클릭방지
     if (selectedCoin.value == "TRON") {
       form = { address: address.value };
-      url = "http://1.231.89.30:3000/tron/getAddressBalance";
+      url = "http://1.234.2.54:3000/tron/getAddressBalance";
     } else {
       form = {
         token_name: selectedCoin.value,
         address: address.value,
       };
-      url = "http://1.231.89.30:3000/tron/getAddressTokenBalance";
+      url = "http://1.234.2.54:3000/tron/getAddressTokenBalance";
     }
     console.log(form);
     var response = await axios.post(url, form);
@@ -340,7 +334,7 @@ const getTRONBalance = async () => {
     var url = "";
 
     form = { address: address.value };
-    url = "http://1.231.89.30:3000/tron/getAddressBalance";
+    url = "http://1.234.2.54:3000/tron/getAddressBalance";
 
     console.log(form);
     var response = await axios.post(url, form);
@@ -364,7 +358,7 @@ const getSendTRONHistory = async () => {
       address: address.value,
       type: "withdraw",
     };
-    url = "http://1.231.89.30:3000/tron/getAddressSendHistory";
+    url = "http://1.234.2.54:3000/tron/getAddressSendHistory";
 
     var response = await axios.post(url, form);
     let history = [];
@@ -399,9 +393,9 @@ const changeTime = (datetime) => {
 
 const Toast = async () => {
   if (
-    balance.value == 0 ||
-    TRONbalance.value < 10 ||
-    balance.value < amount.value + 10
+    Number(balance.value) == 0 ||
+    Number(TRONbalance.value) < 10 ||
+    Number(balance.value) < Number(amount.value) + 10
   ) {
     Swal.fire({
       title: "잔고 부족!",
@@ -420,7 +414,7 @@ const Toast = async () => {
     amount: amount.value,
   };
 
-  url = "http://1.231.89.30:3000/tron/energytest";
+  url = "http://1.234.2.54:3000/tron/energytest";
 
   await axios.post(url, form).then((response) => {
     estimated.value = response.data.estimated.trxCost;
@@ -458,13 +452,16 @@ const sendToken = async () => {
   isDisabled.value = true; // 버튼 비활성화
 
   try {
-    var RequestApi = "http://1.231.89.30:3000/tron/transfer";
-    if (selectedCoin.value !== "TRON") {
-      RequestApi = "http://1.231.89.30:3000/tron/transferToken";
+    var RequestApi = "";
+    if (selectedCoin.value == "EVC") {
+      RequestApi = "http://1.234.2.54:3000/tron/transferToken";
+    } else if (selectedCoin.value == "TRON") {
+      RequestApi = "http://1.234.2.54:3000/tron/transfer";
     }
 
     const sendForm = {
       user_srl: localStorage.getItem("user_srl"),
+      email: localStorage.getItem("user_email"),
       user_id: user_id,
       from_address: address.value,
       to_address: to_address.value,
@@ -482,6 +479,12 @@ const sendToken = async () => {
         Swal.fire({
           title: "SENDING!",
           text: "코인이 전송되었습니다",
+          icon: "success",
+        });
+      } else if (sendResult.result == "block") {
+        Swal.fire({
+          title: "ERROR",
+          text: sendResult.message, //잠겨있어 전송할수 없습니다.
           icon: "success",
         });
       } else {
