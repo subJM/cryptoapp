@@ -137,7 +137,7 @@ const serchNotice = async () => {
     search: serchData.value,
   };
   console.log(form);
-  const url = `/notice/searchNotice`;
+  const url = `/api/notice/searchNotice`;
   const res = await axios.post(url, form);
   const response = res.data;
   if (response.result == "success") {

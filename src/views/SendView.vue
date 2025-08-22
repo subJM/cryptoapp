@@ -289,7 +289,7 @@ const getAddress = async () => {
     } else {
       const form = { user_id: user_id };
       var response = await axios.post(
-        "/users/getAddress",
+        "/api/users/getAddress",
         form
       );
       address.value = response.data;
@@ -308,7 +308,7 @@ const getHaveCoin = async () => {
     // console.log(form);
 
     var res = await axios.post(
-      "/token/getTokenList",
+      "/api/token/getTokenList",
       form
     );
     const result = res.data;
@@ -327,14 +327,14 @@ const getBalance = async () => {
     isDisabled.value = true; //클릭방지
     if (selectedCoin.value == "LOTT") {
       form = { address: address.value };
-      url = "/lott/getAddressBalance";
+      url = "/api/lott/getAddressBalance";
     } else {
       form = {
         user_id: localStorage.getItem("user_id"),
         token_name: selectedCoin.value,
         address: address.value,
       };
-      url = "/lott/getAddressTokenBalance";
+      url = "/api/lott/getAddressTokenBalance";
     }
     console.log(form);
     var response = await axios.post(url, form);
@@ -351,7 +351,7 @@ const getTRONBalance = async () => {
     var url = "";
 
     form = { address: address.value };
-    url = "/lott/getAddressBalance";
+    url = "/api/lott/getAddressBalance";
 
     console.log(form);
     var response = await axios.post(url, form);
@@ -375,7 +375,7 @@ const getSendTRONHistory = async () => {
       address: address.value,
       type: "withdraw",
     };
-    url = "/lott/getAddressSendHistory";
+    url = "/api/lott/getAddressSendHistory";
 
     var response = await axios.post(url, form);
     let history = [];
@@ -431,7 +431,7 @@ const Toast = async () => {
     amount: amount.value,
   };
 
-  url = "/lott/energytest";
+  url = "/api/lott/energytest";
 
   await axios.post(url, form).then((response) => {
     estimated.value = response.data.estimated.trxCost;
@@ -471,9 +471,9 @@ const sendToken = async () => {
   try {
     var RequestApi = "";
     if (selectedCoin.value == "LOTT") {
-      RequestApi = "/lott/transferToken";
+      RequestApi = "/api/lott/transferToken";
     } else if (selectedCoin.value == "ETH") {
-      RequestApi = "/lott/transfer";
+      RequestApi = "/api/lott/transfer";
     }
 
     const sendForm = {
