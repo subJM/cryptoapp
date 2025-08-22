@@ -94,7 +94,7 @@ const signup = async () => {
   // };
 
   // const res = await axios.post(
-  //   "http://localhost:3000/users/account/signin",
+  //   "/users/account/signin",
   //   form
   // );
   // const resData = res.data;
@@ -109,7 +109,7 @@ const signup = async () => {
   requestCheck(form);
 
   const tronAccount = await axios.post(
-    "http://localhost:3000/lott/create_account",
+    "/lott/create_account",
     form
   );
   console.log("지갑생성완료");

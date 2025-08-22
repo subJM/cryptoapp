@@ -203,7 +203,7 @@ const sendForm = async () => {
     amount: amount.value,
     tron_address: tron_address,
   };
-  var response = await axios.post("http://localhost:3000/lott/staking", form);
+  var response = await axios.post("/lott/staking", form);
   console.log(response);
   if (response == "success") {
     window.location.reload();

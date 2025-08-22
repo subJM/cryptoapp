@@ -69,7 +69,7 @@ const changeTime = (datetime) => {
 };
 
 const getNoticeDetail = async () => {
-  const url = "http://localhost:3000/notice/getNoticeDetail";
+  const url = "/notice/getNoticeDetail";
   const form = {
     id: route.params.id,
   };

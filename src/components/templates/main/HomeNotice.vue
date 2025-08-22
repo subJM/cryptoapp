@@ -41,7 +41,7 @@ const changeDate = (datetime) => {
 const noticeList = ref();
 
 const getNotice = async () => {
-  const url = `http://localhost:3000/notice/getNotice`;
+  const url = `/notice/getNotice`;
   const res = await axios.get(url);
   const response = res.data;
   if (response.result == "success") {

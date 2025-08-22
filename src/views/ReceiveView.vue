@@ -89,7 +89,7 @@ const copy = async () => {
 //       user_srl: localStorage.getItem("user_srl"),
 //     };
 //     var response = await axios.post(
-//       "http://localhost:3000/lott/recreate/account",
+//       "/lott/recreate/account",
 //       form
 //     );
 //     var res = response.data;

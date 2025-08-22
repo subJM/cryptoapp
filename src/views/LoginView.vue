@@ -73,7 +73,7 @@ const form = reactive({
 const login = async () => {
   try {
     const res = await axios.post(
-      "http://localhost:3000/users/account/login",
+      "/users/account/login",
       form
     );
     // console.log(res);
