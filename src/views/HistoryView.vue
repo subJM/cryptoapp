@@ -135,7 +135,7 @@ const getHistory = async () => {
     token_name: coin_name,
     address: address,
   };
-  const url = `/wallet/getHistory`;
+  const url = `http://1.234.2.54:3000/wallet/getHistory`;
   const res = await axios.post(url, form);
   const response = res.data;
   historyData.value = response.data;
