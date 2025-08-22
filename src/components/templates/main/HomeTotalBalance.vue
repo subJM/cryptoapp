@@ -1,7 +1,7 @@
 <template>
   <div class="account-info">
     <div class="account-info__title">TOTAL BALANCE</div>
-    <div class="account-info__total">{{ balance }} EVC</div>
+    <div class="account-info__total">{{ balance }} LOTT</div>
     <div class="account-info__stats">
       <span class="plus">+$235</span> | <span class="plus">+12%</span>
     </div>
