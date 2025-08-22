@@ -88,6 +88,7 @@ const login = async () => {
       router.push("/home");
     }
   } catch (error) {
+    alert("아이디 또는 비밀번호가 틀렸습니다");
     router.push("/");
     console.log(error);
   }

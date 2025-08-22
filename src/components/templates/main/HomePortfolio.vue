@@ -127,7 +127,7 @@ const getTronAddress = async () => {
       form
     );
     // localStorage.setItem("eth_address", response.data);
-    localStorage.setItem("tron_address", response.data.address);
+    localStorage.setItem("eth_address", response.data.address);
 
     address.value = response.data.address;
   } catch (error) {
@@ -139,7 +139,7 @@ const getTronAddress = async () => {
 const getAddressBalance = async () => {
   const form = {
     user_srl: localStorage.getItem("user_srl"),
-    address: localStorage.getItem("tron_address"),
+    address: localStorage.getItem("eth_address"),
     // token_name: "ETH",
   };
   const res = await axios.post(
@@ -207,14 +207,14 @@ const performReloadBalance = async () => {
         case "EVC":
           form = {
             userid: user_id,
-            address: localStorage.getItem("tron_address"),
+            address: localStorage.getItem("eth_address"),
           };
           url = "http://211.45.175.111:3000/lott/getAddressTokenBalance";
           break;
         case "TRON":
           form = {
             userid: user_id,
-            address: localStorage.getItem("tron_address"),
+            address: localStorage.getItem("eth_address"),
           };
           url = "http://211.45.175.111:3000/lott/getAddressBalance";
           break;
@@ -243,7 +243,7 @@ const performReloadBalance = async () => {
             token_name: el.token_name,
             beforeBalance: el.balance,
             balance: newBalance,
-            address: localStorage.getItem("tron_address"),
+            address: localStorage.getItem("eth_address"),
           };
           const updateUrl = "http://211.45.175.111:3000/wallet/updateWallet";
           await axios.post(updateUrl, updateForm);

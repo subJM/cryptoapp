@@ -8,7 +8,8 @@
       </li>
       <li>
         <!-- <router-link to="/list"> -->
-        <router-link to="/staking">
+        <!-- <router-link to="/staking"> -->
+        <router-link to="#">
           <img src="/images/icons/stats.svg" alt="" title="" />
         </router-link>
       </li>

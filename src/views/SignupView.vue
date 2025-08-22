@@ -114,7 +114,7 @@ const signup = async () => {
   );
   console.log("지갑생성완료");
   console.log(tronAccount.data);
-  if (tronAccount.data == "success") {
+  if (tronAccount.data.result == "success") {
     router.push("/login");
   }
   // } else

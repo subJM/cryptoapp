@@ -17,14 +17,22 @@
                 name="select_coin"
                 class="required text-center"
               >
-                <option value="EVC" selected>EVC (TRON)</option>
-                <option value="TRON" selected>TRON (TRX)</option>
-                <!-- <option value="ETH">ETH (Ethereum)</option>
-                <option value="BTC">BTC (Bitcoin)</option> -->
+                <option
+                  v-for="token in tokenList"
+                  :key="token.Id"
+                  :value="token.token_name"
+                  :selected="token.token_name == ETH ? true : false"
+                >
+                  {{ token.token_name }} ({{ token.wallet }})
+                </option>
+                <!-- <option value="EVC" selected>EVC (TRON)</option> -->
+                <!-- <option value="TRON" selected>TRON (TRX)</option> -->
+                <!-- <option value="BTC">BTC (Bitcoin)</option> -->
               </select>
             </div>
           </div>
 
+          <!-- 토큰일경우 아래하나더 생기지만 필요없이  -->
           <div class="form__row" v-show="isToken">
             <div class="form__select">
               <select
@@ -67,7 +75,7 @@
           </div>
           <div class="form__row d-flex align-items-center justify-space">
             <div class="form__coin-icon text-start">
-              <span class="p-0">{{ selectedCoin }} :</span>
+              <span class="p-0">{{ selectedCoin }}:</span>
             </div>
             <input
               type="number"
@@ -109,10 +117,10 @@
             class="form__input required text-end"
             readonly
           />
-          <span v-show="TRONbalance < 5"
-            >TRON이 10보다 작으면 전송이 실패할 수 있습니다 (
+          <span v-show="ETHbalance < 5"
+            >ETH가 0.05보다 작으면 전송이 실패할 수 있습니다 (
             <input
-              :value="`현재 ${TRONbalance} TRX`"
+              :value="`현재 ${ETHbalance} ETH`"
               :readonly="true"
               style="background-color: transparent; color: red"
             />)</span
@@ -131,7 +139,7 @@
             : 'rgb(205 191 221)',
           borderRadius: '25px',
         }"
-        :disabled="isDisabled"
+        :disabled="true"
         @click.prevent="Toast"
       >
         Send Token
@@ -216,10 +224,10 @@ const route = useRoute();
 
 const address = ref("");
 const balance = ref("");
-const TRONbalance = ref("");
+const ETHbalance = ref("");
 const to_address = ref(route.params.address);
 const amount = ref("0");
-const token_name = ref("");
+const token_name = ref("ETH");
 const estimated = ref(0);
 
 const sendHistoryData = ref([]);
@@ -229,23 +237,23 @@ const create_date = ref("");
 //클릭 방지
 const isDisabled = ref(true);
 
-const selectedCoin = ref("EVC");
+const selectedCoin = ref("ETH");
 const icon_url = ref(`/images/logos/${selectedCoin.value}.png`);
 
 let tokenList = ref([]);
 
 //토큰 리스트 보기
 let isToken = false;
-
 //TQoSpRDcRMqdhnJmSPuqaspmyWBJRcvbVP
 
 watch(selectedCoin, (newSelectedCoin) => {
   icon_url.value = `/images/logos/${newSelectedCoin}.png`;
-  // if (newSelectedCoin != "ETH") {
-  //   isToken = false;
-  // } else {
-  //   isToken = true;
-  // }
+  if (newSelectedCoin != "ETH") {
+    isToken = false;
+  } else {
+    // isToken = true;
+    isToken = false;
+  }
   // if (selectedCoin.value == "TRX") {
   // }
   console.log(selectedCoin.value);
@@ -272,10 +280,10 @@ if (user_id == "") {
 
 const getAddress = async () => {
   try {
-    const tron_address = localStorage.getItem("tron_address");
+    const eth_address = localStorage.getItem("eth_address");
 
-    if (tron_address != null) {
-      address.value = tron_address;
+    if (eth_address != null) {
+      address.value = eth_address;
     } else {
       const form = { user_id: user_id };
       var response = await axios.post(
@@ -315,7 +323,7 @@ const getBalance = async () => {
     var url = "";
 
     isDisabled.value = true; //클릭방지
-    if (selectedCoin.value == "TRON") {
+    if (selectedCoin.value != "LOTT") {
       form = { address: address.value };
       url = "http://211.45.175.111:3000/lott/getAddressBalance";
     } else {
@@ -327,14 +335,15 @@ const getBalance = async () => {
     }
     console.log(form);
     var response = await axios.post(url, form);
-    balance.value = response.data.balance;
+    console.log("test", response.data.balance);
+    balance.value = toMoney2(response.data.balance);
     isDisabled.value = false;
   } catch (error) {
     console.error("Error fetching the address:", error);
   }
 };
 
-const getTRONBalance = async () => {
+const getETHbalance = async () => {
   try {
     var form = {};
     var url = "";
@@ -342,14 +351,20 @@ const getTRONBalance = async () => {
     form = { address: address.value };
     url = "http://211.45.175.111:3000/lott/getAddressBalance";
 
-    console.log(form);
     var response = await axios.post(url, form);
-    TRONbalance.value = response.data.balance;
-    console.log("getTRONBalance : " + TRONbalance.value);
+    ETHbalance.value = toMoney2(response.data.balance);
+    console.log("getETHbalance : " + ETHbalance.value);
   } catch (error) {
     console.error("Error fetching the address:", error);
   }
 };
+
+// 안전 변환 유틸
+function toMoney2(val, fallback = "0.00") {
+  if (val === null || val === undefined) return fallback;
+  const n = parseFloat(String(val)); // "0.", "0", 0 모두 ok
+  return Number.isFinite(n) ? n.toFixed(4) : fallback; // toFixed는 문자열 반환
+}
 
 //보낸 내역 체크
 const getSendTRONHistory = async () => {
@@ -400,7 +415,7 @@ const changeTime = (datetime) => {
 const Toast = async () => {
   if (
     Number(balance.value) == 0 ||
-    Number(TRONbalance.value) < 10 ||
+    Number(ETHbalance.value) < 0.1 ||
     Number(balance.value) < Number(amount.value) + 10
   ) {
     Swal.fire({
@@ -520,7 +535,7 @@ onMounted(() => {
   getAddress().then(async () => {
     getBalance();
     getSendTRONHistory(); //히스토리 가져오기
-    getTRONBalance();
+    getETHbalance();
   });
 });
 
