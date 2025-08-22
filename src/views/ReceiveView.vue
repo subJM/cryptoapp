@@ -38,7 +38,7 @@ import TopBack from "@/components/templates/inc/TopBack.vue";
 import Swal from "sweetalert2";
 import { ref } from "vue";
 // import { ref, onMounted } from "vue";
-// import axios from "axios";
+// import api from '@/lib/api';
 // or via CommonJS
 
 import VueQrcode from "vue-qrcode";

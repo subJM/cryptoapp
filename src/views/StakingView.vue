@@ -158,7 +158,7 @@
 
 <script setup>
 import TopBack from "@/components/templates/inc/TopBack.vue";
-import axios from "axios";
+import api from '@/lib/api';
 import Swal from "sweetalert2";
 
 import { ref } from "vue";

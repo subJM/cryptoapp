@@ -70,7 +70,7 @@ import { ref } from "vue";
 import TopBackVue from "@/components/templates/inc/TopBack.vue";
 import Swal from "sweetalert2";
 import { useRouter } from "vue-router";
-import axios from "axios";
+import api from '@/lib/api';
 const router = useRouter();
 
 const isDisabled = ref(false);

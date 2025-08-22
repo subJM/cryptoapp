@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import axios from "axios";
+import api from '@/lib/api';
 import { ref } from "vue";
 import moment from "moment-timezone";
 const changeDate = (datetime) => {

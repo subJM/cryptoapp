@@ -57,7 +57,7 @@
 
 <script setup>
 import { reactive } from "vue";
-import axios from "axios";
+import api from '@/lib/api';
 import TopBackVue from "@/components/templates/inc/TopBack.vue";
 import { useRouter } from "vue-router";
 const router = useRouter();
