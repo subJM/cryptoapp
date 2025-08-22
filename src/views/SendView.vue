@@ -278,7 +278,10 @@ const getAddress = async () => {
       address.value = tron_address;
     } else {
       const form = { user_id: user_id };
-      var response = await axios.post("http://1.234.2.54:3000/users/getAddress", form);
+      var response = await axios.post(
+        "http://localhost:3000/users/getAddress",
+        form
+      );
       address.value = response.data;
     }
   } catch (error) {
@@ -294,7 +297,10 @@ const getHaveCoin = async () => {
     };
     // console.log(form);
 
-    var res = await axios.post("http://1.234.2.54:3000/token/getTokenList", form);
+    var res = await axios.post(
+      "http://localhost:3000/token/getTokenList",
+      form
+    );
     const result = res.data;
     tokenList = result.data;
     isDisabled.value = false;
@@ -311,13 +317,13 @@ const getBalance = async () => {
     isDisabled.value = true; //클릭방지
     if (selectedCoin.value == "TRON") {
       form = { address: address.value };
-      url = "http://1.234.2.54:3000/tron/getAddressBalance";
+      url = "http://localhost:3000/lott/getAddressBalance";
     } else {
       form = {
         token_name: selectedCoin.value,
         address: address.value,
       };
-      url = "http://1.234.2.54:3000/tron/getAddressTokenBalance";
+      url = "http://localhost:3000/lott/getAddressTokenBalance";
     }
     console.log(form);
     var response = await axios.post(url, form);
@@ -334,7 +340,7 @@ const getTRONBalance = async () => {
     var url = "";
 
     form = { address: address.value };
-    url = "http://1.234.2.54:3000/tron/getAddressBalance";
+    url = "http://localhost:3000/lott/getAddressBalance";
 
     console.log(form);
     var response = await axios.post(url, form);
@@ -358,7 +364,7 @@ const getSendTRONHistory = async () => {
       address: address.value,
       type: "withdraw",
     };
-    url = "http://1.234.2.54:3000/tron/getAddressSendHistory";
+    url = "http://localhost:3000/lott/getAddressSendHistory";
 
     var response = await axios.post(url, form);
     let history = [];
@@ -414,7 +420,7 @@ const Toast = async () => {
     amount: amount.value,
   };
 
-  url = "http://1.234.2.54:3000/tron/energytest";
+  url = "http://localhost:3000/lott/energytest";
 
   await axios.post(url, form).then((response) => {
     estimated.value = response.data.estimated.trxCost;
@@ -453,10 +459,10 @@ const sendToken = async () => {
 
   try {
     var RequestApi = "";
-    if (selectedCoin.value == "EVC") {
-      RequestApi = "http://1.234.2.54:3000/tron/transferToken";
-    } else if (selectedCoin.value == "TRON") {
-      RequestApi = "http://1.234.2.54:3000/tron/transfer";
+    if (selectedCoin.value == "LOTT") {
+      RequestApi = "http://localhost:3000/lott/transferToken";
+    } else if (selectedCoin.value == "ETH") {
+      RequestApi = "http://localhost:3000/lott/transfer";
     }
 
     const sendForm = {
