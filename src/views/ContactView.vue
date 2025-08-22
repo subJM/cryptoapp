@@ -116,7 +116,7 @@ import TopNav from "@/components/templates/inc/TopNav.vue";
 
 import BottomView from "@/components/templates/inc/BottomView.vue";
 import { reactive } from "vue";
-import api from '@/lib/api';
+import axios from "@/lib/api";
 import { useRouter } from "vue-router";
 
 const user_srl = localStorage.getItem("user_srl");

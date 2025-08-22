@@ -104,7 +104,7 @@ import TopBackVue from "@/components/templates/inc/TopBack.vue";
 import BottomView from "@/components/templates/inc/BottomView.vue";
 
 import { useRoute, useRouter } from "vue-router";
-import api from '@/lib/api';
+import axios from "@/lib/api";
 import { ref } from "vue";
 
 import moment from "moment-timezone";

@@ -104,7 +104,7 @@ import "swiper/css/effect-cards";
 // import required modules
 import { EffectCards } from "swiper/modules";
 import { onMounted, ref } from "vue";
-import api from '@/lib/api';
+import axios from "@/lib/api";
 import { useRouter } from "vue-router";
 const router = useRouter();
 

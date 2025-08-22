@@ -1,4 +1,4 @@
-import api from '@/lib/api';
+import axios from "@/lib/api";
 
 const api = axios.create({
   baseURL: process.env.VUE_APP_API_BASE, // dev: 3000, prod: /api

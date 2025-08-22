@@ -18,7 +18,7 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import api from '@/lib/api';
+import axios from "@/lib/api";
 
 const walletList = ref("");
 const balance = ref(0);

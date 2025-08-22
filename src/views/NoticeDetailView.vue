@@ -49,7 +49,7 @@
 import TopBackVue from "@/components/templates/inc/TopBack.vue";
 
 import BottomView from "@/components/templates/inc/BottomView.vue";
-import api from '@/lib/api';
+import axios from "@/lib/api";
 import { useRoute } from "vue-router";
 import { reactive } from "vue";
 

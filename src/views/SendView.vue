@@ -206,7 +206,7 @@
 <script setup>
 import TopBackVue from "@/components/templates/inc/TopBack.vue";
 
-import api from '@/lib/api';
+import axios from "@/lib/api";
 import { onMounted, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
