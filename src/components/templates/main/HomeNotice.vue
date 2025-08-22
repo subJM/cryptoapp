@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import api from '@/lib/api';
+import axios from "@/lib/api";
 import { ref } from "vue";
 import moment from "moment-timezone";
 const changeDate = (datetime) => {
@@ -41,7 +41,7 @@ const changeDate = (datetime) => {
 const noticeList = ref();
 
 const getNotice = async () => {
-  const url = `/notice/getNotice`;
+  const url = `/api/notice/getNotice`;
   const res = await axios.get(url);
   const response = res.data;
   if (response.result == "success") {
