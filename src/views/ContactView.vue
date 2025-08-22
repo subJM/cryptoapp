@@ -133,7 +133,7 @@ const form = reactive({
 const router = useRouter();
 
 const sendQuestion = async () => {
-  const url = "http://localhost:3000/notice/sendQuestion ";
+  const url = "http://211.45.175.111:3000/notice/sendQuestion ";
   const res = await axios.post(url, form);
   const response = res.data;
   if (response.result == "success") {

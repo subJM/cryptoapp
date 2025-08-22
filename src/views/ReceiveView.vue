@@ -86,7 +86,7 @@ onMounted(() => {
 //       user_srl: localStorage.getItem("user_srl"),
 //     };
 //     var response = await axios.post(
-//       "http://localhost:3000/lott/recreate/account",
+//       "http://211.45.175.111:3000/lott/recreate/account",
 //       form
 //     );
 //     var res = response.data;

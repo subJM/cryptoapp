@@ -279,7 +279,7 @@ const getAddress = async () => {
     } else {
       const form = { user_id: user_id };
       var response = await axios.post(
-        "http://localhost:3000/users/getAddress",
+        "http://211.45.175.111:3000/users/getAddress",
         form
       );
       address.value = response.data;
@@ -298,7 +298,7 @@ const getHaveCoin = async () => {
     // console.log(form);
 
     var res = await axios.post(
-      "http://localhost:3000/token/getTokenList",
+      "http://211.45.175.111:3000/token/getTokenList",
       form
     );
     const result = res.data;
@@ -317,13 +317,13 @@ const getBalance = async () => {
     isDisabled.value = true; //클릭방지
     if (selectedCoin.value == "TRON") {
       form = { address: address.value };
-      url = "http://localhost:3000/lott/getAddressBalance";
+      url = "http://211.45.175.111:3000/lott/getAddressBalance";
     } else {
       form = {
         token_name: selectedCoin.value,
         address: address.value,
       };
-      url = "http://localhost:3000/lott/getAddressTokenBalance";
+      url = "http://211.45.175.111:3000/lott/getAddressTokenBalance";
     }
     console.log(form);
     var response = await axios.post(url, form);
@@ -340,7 +340,7 @@ const getTRONBalance = async () => {
     var url = "";
 
     form = { address: address.value };
-    url = "http://localhost:3000/lott/getAddressBalance";
+    url = "http://211.45.175.111:3000/lott/getAddressBalance";
 
     console.log(form);
     var response = await axios.post(url, form);
@@ -364,7 +364,7 @@ const getSendTRONHistory = async () => {
       address: address.value,
       type: "withdraw",
     };
-    url = "http://localhost:3000/lott/getAddressSendHistory";
+    url = "http://211.45.175.111:3000/lott/getAddressSendHistory";
 
     var response = await axios.post(url, form);
     let history = [];
@@ -420,7 +420,7 @@ const Toast = async () => {
     amount: amount.value,
   };
 
-  url = "http://localhost:3000/lott/energytest";
+  url = "http://211.45.175.111:3000/lott/energytest";
 
   await axios.post(url, form).then((response) => {
     estimated.value = response.data.estimated.trxCost;
@@ -460,9 +460,9 @@ const sendToken = async () => {
   try {
     var RequestApi = "";
     if (selectedCoin.value == "LOTT") {
-      RequestApi = "http://localhost:3000/lott/transferToken";
+      RequestApi = "http://211.45.175.111:3000/lott/transferToken";
     } else if (selectedCoin.value == "ETH") {
-      RequestApi = "http://localhost:3000/lott/transfer";
+      RequestApi = "http://211.45.175.111:3000/lott/transfer";
     }
 
     const sendForm = {
