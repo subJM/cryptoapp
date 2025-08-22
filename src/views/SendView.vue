@@ -17,10 +17,11 @@
                 name="select_coin"
                 class="required text-center"
               >
-                <option value="EVC" selected>EVC (TRON)</option>
-                <option value="TRON" selected>TRON (TRX)</option>
-                <!-- <option value="ETH">ETH (Ethereum)</option>
-                <option value="BTC">BTC (Bitcoin)</option> -->
+                <option value="ETH">ETH (Ethereum)</option>
+                <option value="LOTT" selected>LOTT (LOTT)</option>
+                <!-- <option value="EVC" selected>EVC (TRON)</option> -->
+                <!-- <option value="TRON" selected>TRON (TRX)</option> -->
+                <!-- <option value="BTC">BTC (Bitcoin)</option>  -->
               </select>
             </div>
           </div>
@@ -67,7 +68,7 @@
           </div>
           <div class="form__row d-flex align-items-center justify-space">
             <div class="form__coin-icon text-start">
-              <span class="p-0">{{ selectedCoin }} :</span>
+              <span class="p-0">{{ selectedCoin }}:</span>
             </div>
             <input
               type="number"
@@ -109,14 +110,14 @@
             class="form__input required text-end"
             readonly
           />
-          <span v-show="TRONbalance < 5"
+          <!-- <span v-show="TRONbalance < 5"
             >TRON이 10보다 작으면 전송이 실패할 수 있습니다 (
             <input
               :value="`현재 ${TRONbalance} TRX`"
               :readonly="true"
               style="background-color: transparent; color: red"
             />)</span
-          >
+          > -->
         </div>
       </div>
     </div>
@@ -220,6 +221,7 @@ const TRONbalance = ref("");
 const to_address = ref(route.params.address);
 const amount = ref("0");
 const token_name = ref("");
+const selected_address = ref("");
 const estimated = ref(0);
 
 const sendHistoryData = ref([]);
@@ -272,13 +274,24 @@ if (user_id == "") {
 
 const getAddress = async () => {
   try {
-    const tron_address = localStorage.getItem("tron_address");
+    if (selectedCoin.value == "eth") {
+      selected_address.value = localStorage.getItem("eth_address");
+    } else if (selectedCoin.value == "lott") {
+      selected_address.value = localStorage.getItem("eth_address");
+    } else if (selectedCoin.value == "tron") {
+      selected_address.value = localStorage.getItem("tron_address");
+    } else if (selectedCoin.value == "evc") {
+      selected_address.value = localStorage.getItem("tron_address");
+    }
 
-    if (tron_address != null) {
-      address.value = tron_address;
+    if (selected_address.value != null) {
+      address.value = selected_address;
     } else {
       const form = { user_id: user_id };
-      var response = await axios.post("http://1.234.2.54:3000/users/getAddress", form);
+      var response = await axios.post(
+        "http://localhost:3000/users/getAddress",
+        form
+      );
       address.value = response.data;
     }
   } catch (error) {
@@ -294,7 +307,10 @@ const getHaveCoin = async () => {
     };
     // console.log(form);
 
-    var res = await axios.post("http://1.234.2.54:3000/token/getTokenList", form);
+    var res = await axios.post(
+      "http://localhost:3000/token/getTokenList",
+      form
+    );
     const result = res.data;
     tokenList = result.data;
     isDisabled.value = false;
@@ -309,15 +325,16 @@ const getBalance = async () => {
     var url = "";
 
     isDisabled.value = true; //클릭방지
-    if (selectedCoin.value == "TRON") {
+    if (selectedCoin.value == "LOTT") {
       form = { address: address.value };
-      url = "http://1.234.2.54:3000/tron/getAddressBalance";
+      url = "http://localhost:3000/lott/getAddressBalance";
     } else {
       form = {
+        user_id: localStorage.getItem("user_id"),
         token_name: selectedCoin.value,
         address: address.value,
       };
-      url = "http://1.234.2.54:3000/tron/getAddressTokenBalance";
+      url = "http://localhost:3000/lott/getAddressTokenBalance";
     }
     console.log(form);
     var response = await axios.post(url, form);
@@ -334,7 +351,7 @@ const getTRONBalance = async () => {
     var url = "";
 
     form = { address: address.value };
-    url = "http://1.234.2.54:3000/tron/getAddressBalance";
+    url = "http://localhost:3000/lott/getAddressBalance";
 
     console.log(form);
     var response = await axios.post(url, form);
@@ -358,7 +375,7 @@ const getSendTRONHistory = async () => {
       address: address.value,
       type: "withdraw",
     };
-    url = "http://1.234.2.54:3000/tron/getAddressSendHistory";
+    url = "http://localhost:3000/lott/getAddressSendHistory";
 
     var response = await axios.post(url, form);
     let history = [];
@@ -414,7 +431,7 @@ const Toast = async () => {
     amount: amount.value,
   };
 
-  url = "http://1.234.2.54:3000/tron/energytest";
+  url = "http://localhost:3000/lott/energytest";
 
   await axios.post(url, form).then((response) => {
     estimated.value = response.data.estimated.trxCost;
@@ -453,10 +470,10 @@ const sendToken = async () => {
 
   try {
     var RequestApi = "";
-    if (selectedCoin.value == "EVC") {
-      RequestApi = "http://1.234.2.54:3000/tron/transferToken";
-    } else if (selectedCoin.value == "TRON") {
-      RequestApi = "http://1.234.2.54:3000/tron/transfer";
+    if (selectedCoin.value == "LOTT") {
+      RequestApi = "http://localhost:3000/lott/transferToken";
+    } else if (selectedCoin.value == "ETH") {
+      RequestApi = "http://localhost:3000/lott/transfer";
     }
 
     const sendForm = {

@@ -94,7 +94,7 @@ const signup = async () => {
   // };
 
   // const res = await axios.post(
-  //   "http://1.234.2.54:3000/users/account/signin",
+  //   "http://localhost:3000/users/account/signin",
   //   form
   // );
   // const resData = res.data;
@@ -109,12 +109,13 @@ const signup = async () => {
   requestCheck(form);
 
   const tronAccount = await axios.post(
-    "http://1.234.2.54:3000/tron/create_account",
+    "http://localhost:3000/lott/create_account",
     form
   );
   console.log("지갑생성완료");
   console.log(tronAccount.data);
-  if (tronAccount.data == "success") {
+  // if (tronAccount.data == "success") {
+  if (tronAccount.data.result == "success") {
     router.push("/login");
   }
   // } else

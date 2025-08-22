@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "server": "vue-cli-service serve  --host 1.234.2.54",
+    "server": "vue-cli-service serve  --host localhost",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },

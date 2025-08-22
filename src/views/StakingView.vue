@@ -6,7 +6,7 @@
   >
     <div>
       <img
-        src="/images/logos/TRON.png"
+        src="/images/logos/ETH.png"
         alt=""
         srcset=""
         :style="{
@@ -33,8 +33,8 @@
                 name="select_coin"
                 class="required text-center"
               >
-                <option value="TRON" selected>TRON (TRX)</option>
-                <option value="EVC" :disabled="true">EVC (TRON)</option>
+                <option value="ETH" selected>Ethereum (ETH)</option>
+                <option value="LOTT" :disabled="true">LOTT (LOTT)</option>
                 <!-- <option value="ETH">ETH (Ethereum)</option>
                 <option value="BTC">BTC (Bitcoin)</option> -->
               </select>
@@ -162,7 +162,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 
 import { ref } from "vue";
-const select_coin = ref("TRON");
+const select_coin = ref("ETH");
 const stakingType = ref("ENERGY");
 const amount = ref(0);
 const tron_address = localStorage.getItem("tron_address");
@@ -203,7 +203,7 @@ const sendForm = async () => {
     amount: amount.value,
     tron_address: tron_address,
   };
-  var response = await axios.post("http://1.234.2.54:3000/tron/staking", form);
+  var response = await axios.post("http://localhost:3000/lott/staking", form);
   console.log(response);
   if (response == "success") {
     window.location.reload();

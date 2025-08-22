@@ -30,7 +30,7 @@ const getAddressBalance = async () => {
     // token_name: "ETH",
   };
   const res = await axios.post(
-    "http://1.234.2.54:3000/wallet/getAddressBalance",
+    "http://localhost:3000/wallet/getAddressBalance",
     form
   );
   const resData = res.data;

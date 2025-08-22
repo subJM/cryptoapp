@@ -6,8 +6,9 @@
   >
     <div :style="{ padding: '20px' }">
       <div>
+        <!-- :value="`http://evc-w.io/send/${coin_name}/${tron_address}`" -->
         <vue-qrcode
-          :value="`http://evc-w.io/send/${coin_name}/${tron_address}`"
+          :value="`${coin_name}/${tron_address}`"
           :scale="8"
           :style="{ width: '100%' }"
         />
@@ -24,7 +25,7 @@
           ref="textToCopy"
           readonly
         />
-        <label for="floatingInput">TRON address</label>
+        <label for="floatingInput">LOTT address</label>
       </div>
       <div>
         <div class="btn-copy" @click="copy">주소 복사</div>
@@ -35,14 +36,16 @@
 <script setup>
 import TopBack from "@/components/templates/inc/TopBack.vue";
 import Swal from "sweetalert2";
-import { ref, onMounted } from "vue";
-import axios from "axios";
+import { ref } from "vue";
+// import { ref, onMounted } from "vue";
+// import axios from "axios";
 // or via CommonJS
 
 import VueQrcode from "vue-qrcode";
 
-const coin_name = ref("TRON");
-const tron_address = ref(localStorage.getItem("tron_address"));
+const coin_name = ref("LOTT");
+// const tron_address = ref(localStorage.getItem("tron_address"));
+const tron_address = ref(localStorage.getItem("eth_address"));
 
 const Toast = Swal.mixin({
   toast: true,
@@ -74,30 +77,30 @@ const copy = async () => {
   }
 };
 
-onMounted(() => {
-  recreate_account();
-});
+// onMounted(() => {
+//   recreate_account();
+// });
 
-const recreate_account = async () => {
-  console.log(tron_address.value);
-  if (tron_address.value == "" || tron_address.value == undefined) {
-    const form = {
-      user_id: localStorage.getItem("user_id"),
-      user_srl: localStorage.getItem("user_srl"),
-    };
-    var response = await axios.post(
-      "http://1.234.2.54:3000/tron/recreate/account",
-      form
-    );
-    var res = response.data;
-    if (res.result == "success") {
-      localStorage.setItem("tron_address", res.address);
-      tron_address.value = res.address;
-      console.log(res.address);
-      window.location.reload();
-    }
-  }
-};
+// const recreate_account = async () => {
+//   console.log(tron_address.value);
+//   if (tron_address.value == "" || tron_address.value == undefined) {
+//     const form = {
+//       user_id: localStorage.getItem("user_id"),
+//       user_srl: localStorage.getItem("user_srl"),
+//     };
+//     var response = await axios.post(
+//       "http://localhost:3000/lott/recreate/account",
+//       form
+//     );
+//     var res = response.data;
+//     if (res.result == "success") {
+//       localStorage.setItem("tron_address", res.address);
+//       tron_address.value = res.address;
+//       console.log(res.address);
+//       window.location.reload();
+//     }
+//   }
+// };
 </script>
 
 <style scope>
