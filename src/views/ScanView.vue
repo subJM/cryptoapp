@@ -1,114 +1,130 @@
 <template>
-  <TopBack back="/home"></TopBack>
-  <!-- <div
-    class="page__content page__content--with-header page__content--with-bottom-nav"
-  ></div> -->
-  <!-- <div
-    class="d-flex justify-content-center align-items-center"
-    :style="{ verticalAlign: 'middle' }"
-  >
-    <div style="width: 100%" id="reader"></div>
-  </div> -->
-  <div style="position: relative; width: 100%; height: 100%">
-    <!-- 가려질 내용 -->
-    <div id="content" class="d-flex justify-content-center align-items-center">
-      <div
-        style="width: 100%"
-        id="reader"
-        :style="{ border: 'none !important' }"
-      ></div>
-    </div>
+  <TopBack back="/home" />
+  <div id="scan-wrap">
+    <div id="reader"></div>
 
-    <!-- 가리는 div -->
-    <div id="overray"></div>
+    <!-- 필요하면 중앙 가이드 박스(선택) -->
+    <div class="guide">
+      <div class="box"></div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import TopBack from "@/components/templates/inc/TopBack.vue";
-import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
-import { onMounted, ref } from "vue";
+import { Html5Qrcode } from "html5-qrcode";
+import { onMounted, onBeforeUnmount } from "vue";
+
+let qr; // Html5Qrcode 인스턴스
+let navigating = false;
+
+function handleDecoded(text) {
+  if (navigating) return; // 중복 이동 방지
+  navigating = true;
+  if (/^https?:\/\//i.test(text)) {
+    location.href = text;
+  } else {
+    // 링크가 아니면 필요한 처리
+    console.log("decoded:", text);
+  }
+}
+
+async function pickBackCameraId() {
+  // iOS는 라벨이 비어 있을 수 있으므로 한 번 권한 워밍업(라벨 표시 목적)
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({ video: true });
+    s.getTracks().forEach((t) => t.stop());
+    // eslint-disable-next-line no-empty
+  } catch (_) {}
+
+  const cams = await Html5Qrcode.getCameras(); // [{id,label}, ...]
+  if (!cams?.length) throw new Error("카메라를 찾을 수 없습니다.");
+
+  // 라벨에 back/rear/environment 포함된 장치를 우선
+  const back = cams.find((c) => /back|rear|environment/i.test(c.label));
+  return (back || cams[0]).id;
+}
+
+async function startScan() {
+  if (!window.isSecureContext) {
+    alert("카메라는 HTTPS/localhost에서만 동작합니다.");
+    return;
+  }
+  const deviceId = await pickBackCameraId();
+
+  qr = new Html5Qrcode("reader");
+  // 풀화면 + 후면카메라 지정, 줌 UI 없음(엔진만 사용하므로)
+  await qr.start(
+    { deviceId: { exact: deviceId } },
+    {
+      fps: 12,
+      // 화면 크기에 따라 동적으로 qrbox 크기 계산(화면 60%)
+      qrbox: (vw, vh) => {
+        const size = Math.round(Math.min(vw, vh) * 0.6);
+        return { width: size, height: size };
+      },
+      aspectRatio: 9 / 16, // 세로 화면 비율(원하는 비율로 조정 가능)
+      // disableFlip: true, // 필요 시 좌우반전 금지
+    },
+    handleDecoded,
+    () => {} // 실패 콜백은 과도하게 많으므로 생략
+  );
+}
+
+async function stopScan() {
+  try {
+    await qr?.stop();
+    await qr?.clear();
+    // eslint-disable-next-line no-empty
+  } catch {}
+}
 
 onMounted(() => {
-  // 오버레이만 바로 걷어내고 나머지는 건들지 말기
-  const overray = document.getElementById("overray");
-  if (overray) overray.style.display = "none";
-  function onScanSuccess(decodedText, decodedResult) {
-    // Handle on success condition with the decoded text or result.
-    // console.log(`Scan decodedText:`, decodedText);
-    console.log(`Scan result:`, decodedResult);
-    document.location.href = decodedText;
-  }
-  function onScanfail(decodedText, decodedResult) {
-    // Handle on success condition with the decoded text or result.
-    // console.log(`Scan decodedText:`, decodedText);
-    console.log(`Scan result: ${decodedText}`, decodedResult);
-  }
-
-  let width = ref(window.innerWidth);
-  let height = ref(window.innerHeight);
-  let box = ref(Number(width.value / 3) <= 250 ? 250 : Number(width.value / 3));
-  let config = {
-    fps: 10,
-    qrbox: box.value,
-    rememberLastUsedCamera: true, // 이전 카메라 기억 → 다음엔 자동 시작
-    showTorchButtonIfSupported: true,
-    showZoomSliderIfSupported: true,
-    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-    // supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_FILE],
-    aspectRatio: width.value / height.value,
-  };
-
-  var html5QrcodeScanner = new Html5QrcodeScanner("reader", config);
-  html5QrcodeScanner.render(onScanSuccess, onScanfail);
+  startScan().catch((e) => alert(e.message || e));
+});
+onBeforeUnmount(() => {
+  stopScan();
 });
 </script>
-<style>
-#content {
-  height: 100vh;
-  vertical-align: middle;
+
+<style scoped>
+/* 화면 꽉 채우기 (모바일 주소창 변화 대응: 100dvh) */
+#scan-wrap {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  background: #0f0638;
+  overflow: hidden;
 }
+
+/* 라이브러리가 넣는 <video>를 꽉 채우기 */
 #reader {
-  background-color: "#0f0638";
-}
-#overray {
-  float: right;
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
+}
+#reader video {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  background-color: #000000;
+  object-fit: cover; /* 여백 없이 꽉 채우기 */
 }
 
-#html5-qrcode-button-camera-permission {
-  border-radius: 5px;
-  background-color: #1f7ae5;
-  box-shadow: 0px 0px 8px 2px #9f9f9fc7;
-  width: 90%;
-  padding: 10px;
-  font-size: 14px;
-  font-weight: bolder;
-  color: white;
+/* 중앙 가이드(선택) */
+.guide {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
 }
-.html5-qrcode-element {
-  color: black;
-}
-
-#qr-shaded-region {
-  border-width: 100px 50px;
-}
-#reader__scan_region {
-  display: block;
-  justify-items: center;
-  align-items: center;
+.guide .box {
+  width: min(60vw, 60vh);
+  height: min(60vw, 60vh);
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  border-radius: 12px;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.25) inset;
 }
 
-#reader__dashboard_section {
-  /* display: none; */
-  /* padding: 0; */
-}
-#reader {
-  background-color: #0f0638;
-}
+/* 기존 오버레이/숨김 CSS 필요 없음 */
 </style>
