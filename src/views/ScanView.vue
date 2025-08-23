@@ -71,6 +71,23 @@ onMounted(() => {
   var html5QrcodeScanner = new Html5QrcodeScanner("reader", config);
   html5QrcodeScanner.render(onScanSuccess, onScanfail);
 });
+
+(async () => {
+  console.log("secure?", window.isSecureContext);
+  if (!navigator.mediaDevices?.getUserMedia) {
+    console.log("getUserMedia unsupported");
+    return;
+  }
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" },
+    });
+    console.log("camera OK");
+    s.getTracks().forEach((t) => t.stop());
+  } catch (e) {
+    console.error("getUserMedia error:", e.name, e.message);
+  }
+})();
 </script>
 <style>
 #content {

@@ -7,8 +7,9 @@
     <div :style="{ padding: '20px' }">
       <div>
         <!-- :value="`http://evc-w.io/send/${coin_name}/${tron_address}`" -->
+        <!-- :value="`${eth_address}`" -->
         <vue-qrcode
-          :value="`${eth_address}`"
+          :value="`https://lottwallet.org/send/${coin_name}/${tron_address}`"
           :scale="8"
           :style="{ width: '100%' }"
         />
