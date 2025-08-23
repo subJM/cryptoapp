@@ -66,11 +66,17 @@ async function startScan() {
 }
 
 // 스캔 화면 높이를 '보이는 영역'에 정확히 맞춤
-function setScanViewport() {
-  const topH = document.getElementById("scan-topbar")?.offsetHeight || 0; // TopBack 높이
+function setScanViewport(ratio = 1) {
+  // ratio: 0.7 이면 화면의 70%만 카메라
+  const topH = document.getElementById("scan-topbar")?.offsetHeight || 0;
   const vh = window.visualViewport?.height || window.innerHeight;
+  const scanH = vh - topH;
   document.documentElement.style.setProperty("--scan-top", topH + "px");
-  document.documentElement.style.setProperty("--scan-h", vh - topH + "px");
+  document.documentElement.style.setProperty("--scan-h", scanH + "px");
+  document.documentElement.style.setProperty(
+    "--reader-h",
+    Math.round(scanH * ratio) + "px"
+  );
 }
 
 async function stopScan() {
@@ -82,10 +88,12 @@ async function stopScan() {
 }
 
 onMounted(() => {
-  setScanViewport();
+  setScanViewport(0.85);
   // 주소창이 숨거나 회전될 때도 즉시 반영
-  window.visualViewport?.addEventListener("resize", setScanViewport);
-  window.addEventListener("orientationchange", setScanViewport);
+  const upd = () => setScanViewport(0.85);
+  window.visualViewport?.addEventListener("resize", upd, { passive: true });
+  window.addEventListener("resize", upd, { passive: true });
+  window.addEventListener("orientationchange", () => setTimeout(upd, 100));
   startScan().catch((e) => alert(e.message || e));
 });
 onBeforeUnmount(() => {
@@ -113,6 +121,7 @@ onBeforeUnmount(() => {
 #reader {
   position: absolute;
   inset: 0;
+  height: var(--reader-h, var(--scan-h));
 }
 #reader > div,
 #reader > div > div,
@@ -144,5 +153,14 @@ onBeforeUnmount(() => {
   border: 2px solid rgba(255, 255, 255, 0.9);
   border-radius: 14px;
   box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.28) inset;
+}
+
+/* (선택) 아래 여유영역을 패널로 쓸 때 */
+.bottom-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--scan-h) - var(--reader-h, var(--scan-h)));
 }
 </style>
