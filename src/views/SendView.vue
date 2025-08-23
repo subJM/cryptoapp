@@ -174,7 +174,7 @@
         <a class="card-coin" href="#">
           <div class="card-coin__logo">
             <!-- <img src="/images/icons/minus-solid.svg" alt="" title="" /> -->
-            <img :src="`/images/icons/${history.status}.png`" alt="" title="" />
+            <img :src="`${icon_url}`" alt="" title="" />
             <!-- <span
               class="me-4"
               :style="{
@@ -406,7 +406,7 @@ const getSendTRONHistory = async () => {
         history.push(el);
       });
     }
-
+    console.log(history);
     sendHistoryData.value = history;
   } catch (error) {
     console.error("Error fetching the address:", error);
