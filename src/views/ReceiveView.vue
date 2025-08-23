@@ -6,8 +6,9 @@
   >
     <div :style="{ padding: '20px' }">
       <div>
+        <!-- :value="`http://211.45.175.111/${coin_name}/${eth_address}`" -->
         <vue-qrcode
-          :value="`${coin_name}/${eth_address}`"
+          :value="`${eth_address}`"
           :scale="8"
           :style="{ width: '100%' }"
         />
@@ -41,7 +42,7 @@ import { ref, onMounted } from "vue";
 
 import VueQrcode from "vue-qrcode";
 
-const coin_name = ref("TRON");
+// const coin_name = ref("LOTT");
 const eth_address = ref(localStorage.getItem("eth_address"));
 
 const Toast = Swal.mixin({
