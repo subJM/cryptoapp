@@ -65,6 +65,14 @@ async function startScan() {
   );
 }
 
+// 스캔 화면 높이를 '보이는 영역'에 정확히 맞춤
+function setScanViewport() {
+  const topH = document.getElementById("scan-topbar")?.offsetHeight || 0; // TopBack 높이
+  const vh = window.visualViewport?.height || window.innerHeight;
+  document.documentElement.style.setProperty("--scan-top", topH + "px");
+  document.documentElement.style.setProperty("--scan-h", vh - topH + "px");
+}
+
 async function stopScan() {
   try {
     await qr?.stop();
@@ -74,10 +82,16 @@ async function stopScan() {
 }
 
 onMounted(() => {
+  setScanViewport();
+  // 주소창이 숨거나 회전될 때도 즉시 반영
+  window.visualViewport?.addEventListener("resize", setScanViewport);
+  window.addEventListener("orientationchange", setScanViewport);
   startScan().catch((e) => alert(e.message || e));
 });
 onBeforeUnmount(() => {
   stopScan();
+  window.visualViewport?.removeEventListener("resize", setScanViewport);
+  window.removeEventListener("orientationchange", setScanViewport);
 });
 </script>
 
