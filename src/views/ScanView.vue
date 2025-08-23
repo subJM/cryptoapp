@@ -96,38 +96,47 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* 화면 꽉 채우기: 상단 TopBack 높이만큼 내려서 겹치지 않게 */
+/* TopBack이 있다면 id="scan-topbar" 지정(이미 쓰셨다면 OK) */
+
 #scan-wrap {
   position: fixed;
   top: var(--scan-top, 0px);
   left: 0;
   right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: calc(100dvh - var(--scan-top, 0px));
+  height: var(--scan-h, 100dvh); /* 동적 높이 우선, 없으면 100dvh */
   background: #0f0638;
   overflow: hidden;
+  padding-bottom: env(safe-area-inset-bottom); /* iOS 홈바 영역 */
 }
 
-/* 라이브러리가 넣는 video를 진짜 풀화면로 */
+/* html5-qrcode가 넣는 모든 래퍼를 100%로 강제 */
 #reader {
   position: absolute;
   inset: 0;
 }
-#reader video {
+#reader > div {
   position: absolute;
   inset: 0;
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover !important; /* 여백 없이 꽉 채움 */
 }
 
-/* 라이브러리 기본 음영/모서리 박스 숨김(겹침 방지) */
+/* video/canvas를 컨테이너에 꽉 채움(레터박스 방지) */
+#reader video,
+#reader canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+/* 라이브러리 기본 음영/모서리 박스는 숨기기(겹침 방지) */
 #reader #qr-shaded-region {
   display: none !important;
 }
 
-/* 커스텀 중앙 가이드 (원하면 유지) */
+/* (선택) 중앙 가이드만 표시 중이라면 유지 */
 .guide {
   pointer-events: none;
   position: absolute;
@@ -140,6 +149,6 @@ onBeforeUnmount(() => {
   height: min(60vw, 60vh);
   border: 2px solid rgba(255, 255, 255, 0.9);
   border-radius: 14px;
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.28) inset; /* 바깥 음영 */
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.28) inset;
 }
 </style>
