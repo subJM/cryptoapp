@@ -11,7 +11,7 @@ import NoticeView from "@/views/NoticeView.vue";
 import NoticeDetailView from "@/views/NoticeDetailView.vue";
 import KYCView from "@/views/KYCView.vue";
 import ReceiveView from "@/views/ReceiveView.vue";
-import ScanView from "@/views/ScanView.vue";
+import ScanView from "@/views/ScanView3.vue";
 import StakingView from "@/views/StakingView.vue";
 const routes = [
   {
