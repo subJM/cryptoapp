@@ -123,7 +123,7 @@ const getTronAddress = async () => {
     const form = { user_id: user_id };
     var response = await axios.post(
       // "http://211.45.175.111:3000/tron/getTronAddress",
-      "http://211.45.175.111:3000/users/getEthAddress",
+      "http://211.45.175.111:3000/lott/getEthAddress",
       form
     );
     // localStorage.setItem("eth_address", response.data);
@@ -139,11 +139,12 @@ const getTronAddress = async () => {
 const getAddressBalance = async () => {
   const form = {
     user_srl: localStorage.getItem("user_srl"),
+    user_id: localStorage.getItem("user_id"),
     address: localStorage.getItem("eth_address"),
     // token_name: "ETH",
   };
   const res = await axios.post(
-    "http://211.45.175.111:3000/wallet/getAddressBalance",
+    "http://211.45.175.111:3000/wallet/getUserWallet",
     form
   );
   const resData = res.data;
@@ -157,9 +158,12 @@ onMounted(() => {
     .then(async () => {
       try {
         //지갑주소로 체인에 연결해 잔고 가져오기
-        const form = { address: address.value };
+        const form = {
+          user_id: localStorage.getItem("user_id"),
+          address: address.value,
+        };
         var response = await axios.post(
-          "http://211.45.175.111:3000/wallet/getAddressBalance",
+          "http://211.45.175.111:3000/lott/getAddressBalance",
           form
         );
         balance.value = Number(response.data.balance).toFixed(3);
@@ -201,26 +205,29 @@ const performReloadBalance = async () => {
       // 토큰별 요청 URL과 데이터 설정
       switch (el.token_name) {
         case "ETH":
-          form = { address: address.value };
-          url = "http://211.45.175.111:3000/wallet/getAddressBalance";
+          form = {
+            user_id: localStorage.getItem("user_id"),
+            address: address.value,
+          };
+          url = "http://211.45.175.111:3000/lott/getAddressBalance";
           break;
         case "EVC":
           form = {
-            userid: user_id,
+            user_id: user_id,
             address: localStorage.getItem("eth_address"),
           };
           url = "http://211.45.175.111:3000/lott/getAddressTokenBalance";
           break;
         case "TRON":
           form = {
-            userid: user_id,
+            user_id: user_id,
             address: localStorage.getItem("eth_address"),
           };
-          url = "http://211.45.175.111:3000/lott/getAddressBalance";
+          url = "http://211.45.175.111:3000/tron/getAddressBalance";
           break;
         case "LOTT":
           form = {
-            userid: user_id,
+            user_id: user_id,
             address: address.value,
           };
           url = "http://211.45.175.111:3000/lott/getAddressTokenBalance";
@@ -233,8 +240,10 @@ const performReloadBalance = async () => {
       try {
         const response = await axios.post(url, form);
         const newBalance = response.data.balance;
-        // console.log(el.balance);
-        // console.log(newBalance);
+
+        console.log(response);
+        console.log(newBalance);
+
         if (el.balance != newBalance) {
           // 잔액 변경된 경우 업데이트 요청
           const updateForm = {

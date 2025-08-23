@@ -26,11 +26,12 @@ const balance = ref(0);
 //지갑 잔고 DB에서 가져오기
 const getAddressBalance = async () => {
   const form = {
+    user_id: localStorage.getItem("user_id"),
     user_srl: localStorage.getItem("user_srl"),
     // token_name: "ETH",
   };
   const res = await axios.post(
-    "http://211.45.175.111:3000/wallet/getAddressBalance",
+    "http://211.45.175.111:3000/lott/getAddressBalance",
     form
   );
   const resData = res.data;

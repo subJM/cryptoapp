@@ -251,13 +251,13 @@ watch(selectedCoin, (newSelectedCoin) => {
   icon_url.value = `/images/logos/${newSelectedCoin}.png`;
   if (newSelectedCoin == "LOTT") {
     isToken = false;
-    tokenAddress.value = '0xbA93EF534094F8b7001ECe2691168140965341ab'
+    tokenAddress.value = "0xbA93EF534094F8b7001ECe2691168140965341ab";
   } else {
     // isToken = true;
     isToken = false;
-    tokenAddress.value = ''
+    tokenAddress.value = "";
   }
-  
+
   // if (selectedCoin.value == "TRX") {
   // }
   console.log(selectedCoin.value);
@@ -328,10 +328,14 @@ const getBalance = async () => {
 
     isDisabled.value = true; //클릭방지
     if (selectedCoin.value != "LOTT") {
-      form = { address: address.value };
+      form = {
+        user_id: localStorage.getItem("user_id"),
+        address: address.value,
+      };
       url = "http://211.45.175.111:3000/lott/getAddressBalance";
     } else {
       form = {
+        user_id: localStorage.getItem("user_id"),
         token_name: selectedCoin.value,
         address: address.value,
       };
@@ -352,7 +356,7 @@ const getETHbalance = async () => {
     var form = {};
     var url = "";
 
-    form = { address: address.value };
+    form = { user_id: localStorage.getItem("user_id"), address: address.value };
     url = "http://211.45.175.111:3000/lott/getAddressBalance";
 
     var response = await axios.post(url, form);
@@ -426,7 +430,8 @@ const Toast = async () => {
       token_name: selectedCoin.value, // "ETH" 또는 "LOTT"(ERC-20)
       amount: amount.value,
       // ERC-20이면 반드시 토큰 주소 포함
-      token_address: selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
+      token_address:
+        selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
     };
 
     const url = "http://211.45.175.111:3000/lott/evmfeetest";
@@ -437,7 +442,8 @@ const Toast = async () => {
     }
 
     // EIP-1559 우선, 없으면 legacy 사용
-    const feeNativeStr = est.eip1559?.estimatedFeeNative ?? est.legacy?.estimatedFeeNative;
+    const feeNativeStr =
+      est.eip1559?.estimatedFeeNative ?? est.legacy?.estimatedFeeNative;
     const feeNative = Number(feeNativeStr || 0);
     const gasLimit = est.gasLimit;
     const gasPriceGwei =
@@ -452,7 +458,9 @@ const Toast = async () => {
       const balanceEth = Number(est.balanceNative || 0);
       if (balanceEth < totalNeed) {
         ok = false;
-        warnMsg = `필요 ${totalNeed.toFixed(6)} ETH, 보유 ${balanceEth.toFixed(6)} ETH`;
+        warnMsg = `필요 ${totalNeed.toFixed(6)} ETH, 보유 ${balanceEth.toFixed(
+          6
+        )} ETH`;
       }
     } else {
       // ERC-20: 가스비만 필요(ETH)
@@ -478,7 +486,7 @@ const Toast = async () => {
             est.required?.totalNeedNative || 0
           ).toFixed(6)} ${symbol}`
         : `예상 수수료(ETH): ~${feeNative.toFixed(6)} / 수수료만 필요`,
-      warnMsg ? `잔고 부족: ${warnMsg}` : ""
+      warnMsg ? `잔고 부족: ${warnMsg}` : "",
     ].filter(Boolean);
 
     // 화면에도 남기고 싶다면
@@ -572,7 +580,6 @@ const sendToken = async () => {
     isDisabled.value = false;
   }
 };
-
 
 onMounted(() => {
   getHaveCoin();
