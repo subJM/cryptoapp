@@ -1,145 +1,65 @@
 <template>
-  <TopBack back="/home"></TopBack>
-  <!-- <div
-    class="page__content page__content--with-header page__content--with-bottom-nav"
-  ></div> -->
-  <!-- <div
-    class="d-flex justify-content-center align-items-center"
-    :style="{ verticalAlign: 'middle' }"
-  >
-    <div style="width: 100%" id="reader"></div>
-  </div> -->
-  <div style="position: relative; width: 100%; height: 100%">
-    <!-- 가려질 내용 -->
-    <div id="content" class="d-flex justify-content-center align-items-center">
-      <div
-        style="width: 100%"
-        id="reader"
-        :style="{ border: 'none !important' }"
-      ></div>
-    </div>
-
-    <!-- 가리는 div -->
-    <div id="overray"></div>
+  <TopBack back="/home" />
+  <div class="wrap">
+    <div id="reader"></div>
   </div>
 </template>
 
 <script setup>
 import TopBack from "@/components/templates/inc/TopBack.vue";
 import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
-import { onMounted, ref } from "vue";
+import { onMounted, onBeforeUnmount } from "vue";
+
+let scanner;
+
+function onScanSuccess(decodedText /*, decodedResult */) {
+  if (/^https?:\/\//i.test(decodedText)) {
+    location.href = decodedText;
+  } else {
+    console.log("decoded:", decodedText);
+  }
+}
+function onScanFailure() {
+  /* 너무 자주 호출되므로 로그 생략 */
+}
 
 onMounted(() => {
-  setTimeout(() => {
-    const overray = document.getElementById("overray");
-    overray.style.display = "none"; // 이렇게 수정
-
-    const reader = document.getElementById("reader");
-    reader.style.border = "none"; //
-
-    const dashboard_section = document.getElementById(
-      "reader__dashboard_section_csr"
-    );
-    dashboard_section.style.display = "none"; //
-
-    const dashboard = document.getElementById("reader__dashboard_section");
-    dashboard.style.padding = 0; //
-  }, 1000);
-  function onScanSuccess(decodedText, decodedResult) {
-    // Handle on success condition with the decoded text or result.
-    // console.log(`Scan decodedText:`, decodedText);
-    console.log(`Scan result:`, decodedResult);
-    document.location.href = decodedText;
-  }
-  function onScanfail(decodedText, decodedResult) {
-    // Handle on success condition with the decoded text or result.
-    // console.log(`Scan decodedText:`, decodedText);
-    console.log(`Scan result: ${decodedText}`, decodedResult);
-  }
-
-  let width = ref(window.innerWidth);
-  let height = ref(window.innerHeight);
-  let box = ref(Number(width.value / 3) <= 250 ? 250 : Number(width.value / 3));
-  let config = {
-    fps: 10,
-    qrbox: box.value,
-    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
-    // supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_FILE],
-    aspectRatio: width.value / height.value,
-  };
-
-  var html5QrcodeScanner = new Html5QrcodeScanner("reader", config);
-  html5QrcodeScanner.render(onScanSuccess, onScanfail);
-});
-
-(async () => {
-  console.log("secure?", window.isSecureContext);
-  if (!navigator.mediaDevices?.getUserMedia) {
-    console.log("getUserMedia unsupported");
+  if (!window.isSecureContext) {
+    alert("카메라는 HTTPS/localhost에서만 동작합니다.");
     return;
   }
+  // Scanner UI 사용(버튼/카메라 선택 포함)
+  scanner = new Html5QrcodeScanner("reader", {
+    fps: 10,
+    qrbox: 250, // 또는 { width: 250, height: 250 }
+    rememberLastUsedCamera: true,
+    showTorchButtonIfSupported: true,
+    showZoomSliderIfSupported: true,
+    supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA],
+  });
+  scanner.render(onScanSuccess, onScanFailure);
+});
+
+onBeforeUnmount(async () => {
   try {
-    const s = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment" },
-    });
-    console.log("camera OK");
-    s.getTracks().forEach((t) => t.stop());
-  } catch (e) {
-    console.error("getUserMedia error:", e.name, e.message);
-  }
-})();
+    await scanner?.clear();
+    // eslint-disable-next-line no-empty
+  } catch {}
+});
 </script>
-<style>
-#content {
-  height: 100vh;
-  vertical-align: middle;
+
+<style scoped>
+.wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 16px;
 }
 #reader {
-  background-color: "#0f0638";
-}
-#overray {
-  float: right;
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
-  background-color: #000000;
+  max-width: 480px;
+  background-color: #0f0638;
+  border-radius: 12px;
 }
-
-#html5-qrcode-button-camera-start,
-#html5-qrcode-button-camera-stop {
-  display: none;
-}
-#html5-qrcode-button-camera-permission {
-  border-radius: 5px;
-  background-color: #1f7ae5;
-  box-shadow: 0px 0px 8px 2px #9f9f9fc7;
-  width: 90%;
-  padding: 10px;
-  font-size: 14px;
-  font-weight: bolder;
-  color: white;
-}
-.html5-qrcode-element {
-  color: black;
-}
-#qr-reader__scan_region {
-  height: 80%;
-}
-#qr-shaded-region {
-  border-width: 100px 50px;
-}
-#reader__scan_region {
-  display: block;
-  justify-items: center;
-  align-items: center;
-}
-#reader__dashboard_section_csr {
-  display: none;
-}
-#reader__dashboard_section {
-  /* display: none; */
-  /* padding: 0; */
-}
+/* ❌ 시작/정지/대시보드/스캔영역을 숨기는 CSS는 넣지 마세요 */
 </style>
