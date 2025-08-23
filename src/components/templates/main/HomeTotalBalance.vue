@@ -32,7 +32,7 @@ const getAddressBalance = async () => {
     // token_name: "ETH",
   };
   const res = await axios.post(
-    "http://211.45.175.111:3000/lott/getAddressTokenBalance",
+    "http://lottwallet.org:3000/lott/getAddressTokenBalance",
     form
   );
   const resData = res.data;

@@ -69,7 +69,7 @@ const changeTime = (datetime) => {
 };
 
 const getNoticeDetail = async () => {
-  const url = "http://211.45.175.111:3000/notice/getNoticeDetail";
+  const url = "http://lottwallet.org:3000/notice/getNoticeDetail";
   const form = {
     id: route.params.id,
   };

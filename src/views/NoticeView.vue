@@ -122,7 +122,7 @@ const changeTime = (datetime) => {
 };
 
 const getNotice = async () => {
-  const url = `http://211.45.175.111:3000/notice/getNotice`;
+  const url = `http://lottwallet.org:3000/notice/getNotice`;
   const res = await axios.get(url);
   const response = res.data;
   if (response.result == "success") {
@@ -137,7 +137,7 @@ const serchNotice = async () => {
     search: serchData.value,
   };
   console.log(form);
-  const url = `http://211.45.175.111:3000/notice/searchNotice`;
+  const url = `http://lottwallet.org:3000/notice/searchNotice`;
   const res = await axios.post(url, form);
   const response = res.data;
   if (response.result == "success") {

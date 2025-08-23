@@ -6,7 +6,7 @@
   >
     <div :style="{ padding: '20px' }">
       <div>
-        <!-- :value="`http://211.45.175.111/${coin_name}/${eth_address}`" -->
+        <!-- :value="`http://evc-w.io/send/${coin_name}/${tron_address}`" -->
         <vue-qrcode
           :value="`${eth_address}`"
           :scale="8"
@@ -87,7 +87,7 @@ onMounted(() => {
 //       user_srl: localStorage.getItem("user_srl"),
 //     };
 //     var response = await axios.post(
-//       "http://211.45.175.111:3000/lott/recreate/account",
+//       "http://lottwallet.org:3000/lott/recreate/account",
 //       form
 //     );
 //     var res = response.data;
