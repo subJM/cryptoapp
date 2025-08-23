@@ -113,7 +113,7 @@
           <input
             type="text"
             name="Text"
-            :value="`${balance} ${token_name}`"
+            :value="`${balance} ${selectedCoin}`"
             class="form__input required text-end"
             readonly
           />

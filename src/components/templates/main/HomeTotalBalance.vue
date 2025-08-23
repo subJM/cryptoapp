@@ -20,7 +20,7 @@
 import { onMounted, ref } from "vue";
 import axios from "axios";
 
-const walletList = ref("");
+// const walletList = ref("");
 const balance = ref(0);
 
 //지갑 잔고 DB에서 가져오기
@@ -28,23 +28,27 @@ const getAddressBalance = async () => {
   const form = {
     user_id: localStorage.getItem("user_id"),
     user_srl: localStorage.getItem("user_srl"),
+    address: localStorage.getItem("eth_address"),
     // token_name: "ETH",
   };
   const res = await axios.post(
-    "http://211.45.175.111:3000/lott/getAddressBalance",
+    "http://211.45.175.111:3000/lott/getAddressTokenBalance",
     form
   );
   const resData = res.data;
-  console.log(res.data);
-  if (resData.result == "success") {
-    walletList.value = resData.data;
-  }
-  walletList.value.forEach(async (el) => {
-    if (el.token_name == "EVC") {
-      balance.value = el.balance;
-      console.log(balance.value);
-    }
-  });
+  // console.log("LOTT getAddressBalance", resData.balance);
+  balance.value = parseInt(resData.balance);
+  // walletList.value = "";
+
+  // if (resData.result == "success") {
+  //  walletList.value = resData.data;
+  // }
+  // walletList.value.forEach(async (el) => {
+  //   if (el.token_name == "LOTT") {
+  //     balance.value = el.balance;
+  //     console.log(balance.value);
+  //   }
+  // });
 };
 
 onMounted(() => {
