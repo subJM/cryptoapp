@@ -133,7 +133,7 @@ const form = reactive({
 const router = useRouter();
 
 const sendQuestion = async () => {
-  const url = "http://lottwallet.org:3000/notice/sendQuestion ";
+  const url = "https://lottwallet.org:3000/notice/sendQuestion ";
   const res = await axios.post(url, form);
   const response = res.data;
   if (response.result == "success") {

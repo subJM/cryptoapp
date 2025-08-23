@@ -122,8 +122,8 @@ const getTronAddress = async () => {
   try {
     const form = { user_id: user_id };
     var response = await axios.post(
-      // "http://lottwallet.org:3000/tron/getTronAddress",
-      "http://lottwallet.org:3000/lott/getEthAddress",
+      // "https://lottwallet.org:3000/tron/getTronAddress",
+      "https://lottwallet.org:3000/lott/getEthAddress",
       form
     );
     // localStorage.setItem("eth_address", response.data);
@@ -144,7 +144,7 @@ const getAddressBalance = async () => {
     // token_name: "ETH",
   };
   const res = await axios.post(
-    "http://lottwallet.org:3000/wallet/getUserWallet",
+    "https://lottwallet.org:3000/wallet/getUserWallet",
     form
   );
   const resData = res.data;
@@ -163,7 +163,7 @@ onMounted(() => {
           address: address.value,
         };
         var response = await axios.post(
-          "http://lottwallet.org:3000/lott/getAddressBalance",
+          "https://lottwallet.org:3000/lott/getAddressBalance",
           form
         );
         balance.value = Number(response.data.balance).toFixed(3);
@@ -209,28 +209,28 @@ const performReloadBalance = async () => {
             user_id: localStorage.getItem("user_id"),
             address: address.value,
           };
-          url = "http://lottwallet.org:3000/lott/getAddressBalance";
+          url = "https://lottwallet.org:3000/lott/getAddressBalance";
           break;
         case "EVC":
           form = {
             user_id: user_id,
             address: localStorage.getItem("eth_address"),
           };
-          url = "http://lottwallet.org:3000/lott/getAddressTokenBalance";
+          url = "https://lottwallet.org:3000/lott/getAddressTokenBalance";
           break;
         case "TRON":
           form = {
             user_id: user_id,
             address: localStorage.getItem("eth_address"),
           };
-          url = "http://lottwallet.org:3000/tron/getAddressBalance";
+          url = "https://lottwallet.org:3000/tron/getAddressBalance";
           break;
         case "LOTT":
           form = {
             user_id: user_id,
             address: address.value,
           };
-          url = "http://lottwallet.org:3000/lott/getAddressTokenBalance";
+          url = "https://lottwallet.org:3000/lott/getAddressTokenBalance";
           break;
         default:
           continue; // 정의되지 않은 토큰은 스킵
@@ -254,7 +254,7 @@ const performReloadBalance = async () => {
             balance: newBalance,
             address: localStorage.getItem("eth_address"),
           };
-          const updateUrl = "http://lottwallet.org:3000/wallet/updateWallet";
+          const updateUrl = "https://lottwallet.org:3000/wallet/updateWallet";
           await axios.post(updateUrl, updateForm);
           window.location.reload();
         }

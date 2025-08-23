@@ -291,7 +291,7 @@ const getAddress = async () => {
     } else {
       const form = { user_id: user_id };
       var response = await axios.post(
-        "http://lottwallet.org:3000/users/getAddress",
+        "https://lottwallet.org:3000/users/getAddress",
         form
       );
       address.value = response.data;
@@ -310,7 +310,7 @@ const getHaveCoin = async () => {
     // console.log(form);
 
     var res = await axios.post(
-      "http://lottwallet.org:3000/token/getTokenList",
+      "https://lottwallet.org:3000/token/getTokenList",
       form
     );
     const result = res.data;
@@ -332,14 +332,14 @@ const getBalance = async () => {
         user_id: localStorage.getItem("user_id"),
         address: address.value,
       };
-      url = "http://lottwallet.org:3000/lott/getAddressBalance";
+      url = "https://lottwallet.org:3000/lott/getAddressBalance";
     } else {
       form = {
         user_id: localStorage.getItem("user_id"),
         token_name: selectedCoin.value,
         address: address.value,
       };
-      url = "http://lottwallet.org:3000/lott/getAddressTokenBalance";
+      url = "https://lottwallet.org:3000/lott/getAddressTokenBalance";
     }
     console.log(form);
     var response = await axios.post(url, form);
@@ -357,7 +357,7 @@ const getETHbalance = async () => {
     var url = "";
 
     form = { user_id: localStorage.getItem("user_id"), address: address.value };
-    url = "http://lottwallet.org:3000/lott/getAddressBalance";
+    url = "https://lottwallet.org:3000/lott/getAddressBalance";
 
     var response = await axios.post(url, form);
     ETHbalance.value = toMoney2(response.data.balance);
@@ -387,7 +387,7 @@ const getSendTRONHistory = async () => {
       address: address.value,
       type: "withdraw",
     };
-    url = "http://lottwallet.org:3000/lott/getAddressSendHistory";
+    url = "https://lottwallet.org:3000/lott/getAddressSendHistory";
 
     var response = await axios.post(url, form);
     let history = [];
@@ -434,7 +434,7 @@ const Toast = async () => {
         selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
     };
 
-    const url = "http://lottwallet.org:3000/lott/evmfeetest";
+    const url = "https://lottwallet.org:3000/lott/evmfeetest";
     const { data } = await axios.post(url, form);
     const est = data?.estimated;
     if (!est) {
@@ -526,10 +526,10 @@ const sendToken = async () => {
   try {
     let RequestApi = "";
     if (selectedCoin.value === "ETH") {
-      RequestApi = "http://lottwallet.org:3000/lott/transfer";
+      RequestApi = "https://lottwallet.org:3000/lott/transfer";
     } else {
       // ERC-20(LOTT 포함) 일반화
-      RequestApi = "http://lottwallet.org:3000/lott/transferToken";
+      RequestApi = "https://lottwallet.org:3000/lott/transferToken";
     }
 
     const sendForm = {
