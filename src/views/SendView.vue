@@ -233,6 +233,7 @@ const estimated = ref(0);
 const sendHistoryData = ref([]);
 const departDate = ref(true);
 const create_date = ref("");
+const tokenAddress = ref("");
 
 //클릭 방지
 const isDisabled = ref(true);
@@ -248,12 +249,15 @@ let isToken = false;
 
 watch(selectedCoin, (newSelectedCoin) => {
   icon_url.value = `/images/logos/${newSelectedCoin}.png`;
-  if (newSelectedCoin != "ETH") {
+  if (newSelectedCoin == "LOTT") {
     isToken = false;
+    tokenAddress.value = '0xbA93EF534094F8b7001ECe2691168140965341ab'
   } else {
     // isToken = true;
     isToken = false;
+    tokenAddress.value = ''
   }
+  
   // if (selectedCoin.value == "TRX") {
   // }
   console.log(selectedCoin.value);
@@ -413,122 +417,162 @@ const changeTime = (datetime) => {
 };
 
 const Toast = async () => {
-  if (
-    Number(balance.value) == 0 ||
-    Number(ETHbalance.value) < 0.1 ||
-    Number(balance.value) < Number(amount.value) + 10
-  ) {
-    Swal.fire({
-      title: "잔고 부족!",
-      text: "잔고를 확인해주세요",
-      icon: "question",
-    });
-    return;
-  }
-  var url = "";
-  const form = {
-    user_srl: localStorage.getItem("user_srl"),
-    user_id: user_id,
-    from_address: address.value,
-    to_address: to_address.value,
-    token_name: selectedCoin.value,
-    amount: amount.value,
-  };
+  try {
+    const form = {
+      user_srl: localStorage.getItem("user_srl"),
+      user_id,
+      from_address: address.value,
+      to_address: to_address.value,
+      token_name: selectedCoin.value, // "ETH" 또는 "LOTT"(ERC-20)
+      amount: amount.value,
+      // ERC-20이면 반드시 토큰 주소 포함
+      token_address: selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
+    };
 
-  url = "http://211.45.175.111:3000/lott/energytest";
+    const url = "http://211.45.175.111:3000/lott/evmfeetest";
+    const { data } = await axios.post(url, form);
+    const est = data?.estimated;
+    if (!est) {
+      throw new Error("수수료 추정 결과가 없습니다.");
+    }
 
-  await axios.post(url, form).then((response) => {
-    estimated.value = response.data.estimated.trxCost;
-    Swal.fire({
-      title: "코인을 전송하시겠습니까?",
-      text: "예상 수수료: " + estimated.value,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, send it!",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        // sendToken을 호출할 때 익명 함수로 감싸기
-        try {
-          sendToken();
-        } catch (error) {
-          Swal.fire({
-            title: "Error!",
-            text: "코인 전송에 실패했습니다.",
-            icon: "error",
-          });
-        }
+    // EIP-1559 우선, 없으면 legacy 사용
+    const feeNativeStr = est.eip1559?.estimatedFeeNative ?? est.legacy?.estimatedFeeNative;
+    const feeNative = Number(feeNativeStr || 0);
+    const gasLimit = est.gasLimit;
+    const gasPriceGwei =
+      est.eip1559?.maxFeePerGasGwei ?? est.legacy?.gasPriceGwei ?? "N/A";
+
+    // 동적 잔고 검증
+    let ok = true;
+    let warnMsg = "";
+    if ((form.token_name || "").toUpperCase() === "ETH") {
+      // 총 필요량 = 전송액 + 가스비
+      const totalNeed = Number(est.required?.totalNeedNative || 0);
+      const balanceEth = Number(est.balanceNative || 0);
+      if (balanceEth < totalNeed) {
+        ok = false;
+        warnMsg = `필요 ${totalNeed.toFixed(6)} ETH, 보유 ${balanceEth.toFixed(6)} ETH`;
       }
+    } else {
+      // ERC-20: 가스비만 필요(ETH)
+      const feeOnly = Number(est.required?.feeOnlyNative || feeNative);
+      const balanceEth = Number(est.balanceNative || 0);
+      if (balanceEth < feeOnly) {
+        ok = false;
+        warnMsg = `가스비 필요 ${feeOnly.toFixed(
+          6
+        )} ETH, 보유 ${balanceEth.toFixed(6)} ETH`;
+      }
+    }
+
+    // 사용자 표시용 요약
+    const network = est.network; // 예: mainnet(1)
+    const symbol = est.symbol || "ETH"; // 네이티브/표시 심볼
+    const summaryLines = [
+      `네트워크: ${network}`,
+      `가스 한도: ~${gasLimit}`,
+      `가스 가격: ~${gasPriceGwei} gwei`,
+      (form.token_name || "").toUpperCase() === "ETH"
+        ? `예상 수수료: ~${feeNative.toFixed(6)} ETH / 총 필요량: ${Number(
+            est.required?.totalNeedNative || 0
+          ).toFixed(6)} ${symbol}`
+        : `예상 수수료(ETH): ~${feeNative.toFixed(6)} / 수수료만 필요`,
+      warnMsg ? `잔고 부족: ${warnMsg}` : ""
+    ].filter(Boolean);
+
+    // 화면에도 남기고 싶다면
+    estimated.value = feeNative.toFixed(6);
+
+    const result = await Swal.fire({
+      title: "코인을 전송하시겠습니까?",
+      text: summaryLines.join("\n"),
+      icon: ok ? "warning" : "error",
+      showCancelButton: true,
+      confirmButtonColor: ok ? "#3085d6" : "#aaa",
+      cancelButtonColor: "#d33",
+      confirmButtonText: ok ? "Yes, send it!" : "잔고 부족",
+      allowOutsideClick: false,
     });
-  });
+
+    if (ok && result.isConfirmed) {
+      await sendToken(); // 실제 전송
+    }
+  } catch (error) {
+    console.error("수수료 추정 오류:", error?.message || error);
+    Swal.fire({
+      title: "오류",
+      text: error?.message || "수수료 추정에 실패했습니다.",
+      icon: "error",
+    });
+  }
 };
 
 var test = "TypeError: Cannot read properties of undefined (reading 'result')";
 console.log("test : " + test.includes("Transaction not found"));
 
 const sendToken = async () => {
-  if (isDisabled.value) return; // 중복 클릭 방지
-
-  isDisabled.value = true; // 버튼 비활성화
+  if (isDisabled.value) return;
+  isDisabled.value = true;
 
   try {
-    var RequestApi = "";
-    if (selectedCoin.value == "LOTT") {
-      RequestApi = "http://211.45.175.111:3000/lott/transferToken";
-    } else if (selectedCoin.value == "ETH") {
+    let RequestApi = "";
+    if (selectedCoin.value === "ETH") {
       RequestApi = "http://211.45.175.111:3000/lott/transfer";
+    } else {
+      // ERC-20(LOTT 포함) 일반화
+      RequestApi = "http://211.45.175.111:3000/lott/transferToken";
     }
 
     const sendForm = {
       user_srl: localStorage.getItem("user_srl"),
       email: localStorage.getItem("user_email"),
-      user_id: user_id,
+      user_id,
       from_address: address.value,
       to_address: to_address.value,
       token_name: selectedCoin.value,
       amount: amount.value,
+      // ERC-20이면 토큰 주소도 포함
+      token_address:
+        selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
     };
 
-    // 입력 데이터 검증
-    await requestCheck(sendForm);
+    await requestCheck(sendForm); // 유효성 검증
 
-    // 송금 요청
-    await axios.post(RequestApi, sendForm).then(async (res) => {
-      const sendResult = res.data;
-      if (sendResult.result == "success") {
-        Swal.fire({
-          title: "SENDING!",
-          text: "코인이 전송되었습니다",
-          icon: "success",
-        });
-      } else if (sendResult.result == "block") {
-        Swal.fire({
-          title: "ERROR",
-          text: sendResult.message, //잠겨있어 전송할수 없습니다.
-          icon: "success",
-        });
-      } else {
-        Swal.fire({
-          title: "Error!",
-          text: "코인 전송에 실패했습니다.",
-          icon: "error",
-        });
-      }
-    });
+    const { data: sendResult } = await axios.post(RequestApi, sendForm);
+
+    if (sendResult.result === "success") {
+      Swal.fire({
+        title: "SENDING!",
+        text: "코인이 전송되었습니다",
+        icon: "success",
+      });
+      // TODO: 잔고 재조회/화면 갱신 로직
+    } else if (sendResult.result === "block") {
+      Swal.fire({
+        title: "ERROR",
+        text: sendResult.message || "잠겨있어 전송할 수 없습니다.",
+        icon: "error", // ← success → error 로 변경
+      });
+    } else {
+      Swal.fire({
+        title: "Error!",
+        text: sendResult.message || "코인 전송에 실패했습니다.",
+        icon: "error",
+      });
+    }
   } catch (error) {
-    // 예외 처리
-    console.error("송금 중 오류 발생:", error.message || error);
+    console.error("송금 중 오류 발생:", error?.message || error);
     Swal.fire({
       title: "Error!",
-      text: "코인 전송에 실패했습니다.",
+      text: error?.message || "코인 전송에 실패했습니다.",
       icon: "error",
     });
   } finally {
-    // 항상 버튼을 다시 활성화
     isDisabled.value = false;
   }
 };
+
 
 onMounted(() => {
   getHaveCoin();
