@@ -1,5 +1,5 @@
 <template>
-  <TopBack back="/home" />
+  <TopBack id="scan-topbar" back="/home" />
   <div id="scan-wrap">
     <div id="reader"></div>
 
@@ -97,46 +97,40 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /* TopBack이 있다면 id="scan-topbar" 지정(이미 쓰셨다면 OK) */
-
+/* 스캔 영역: 위는 TopBack 만큼 내리고, 아래는 화면 끝까지 */
 #scan-wrap {
   position: fixed;
   top: var(--scan-top, 0px);
   left: 0;
   right: 0;
-  height: var(--scan-h, 100dvh); /* 동적 높이 우선, 없으면 100dvh */
+  height: var(--scan-h, 100svh); /* 동적 높이(없으면 100svh) */
   background: #0f0638;
   overflow: hidden;
-  padding-bottom: env(safe-area-inset-bottom); /* iOS 홈바 영역 */
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* html5-qrcode가 넣는 모든 래퍼를 100%로 강제 */
+/* html5-qrcode가 만드는 래퍼/비디오/캔버스 전부 100% 강제 */
 #reader {
   position: absolute;
   inset: 0;
 }
-#reader > div {
-  position: absolute;
-  inset: 0;
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* video/canvas를 컨테이너에 꽉 채움(레터박스 방지) */
+#reader > div,
+#reader > div > div,
 #reader video,
 #reader canvas {
   position: absolute;
   inset: 0;
   width: 100% !important;
   height: 100% !important;
-  object-fit: cover !important;
+  object-fit: cover !important; /* 레터박스 방지 */
 }
 
-/* 라이브러리 기본 음영/모서리 박스는 숨기기(겹침 방지) */
+/* 라이브러리 기본 음영은 숨기고(겹침 방지), 우리 가이드만 보여주기 */
 #reader #qr-shaded-region {
   display: none !important;
 }
 
-/* (선택) 중앙 가이드만 표시 중이라면 유지 */
+/* 선택: 가운데 가이드 유지 중이라면 */
 .guide {
   pointer-events: none;
   position: absolute;
