@@ -236,7 +236,7 @@ const create_date = ref("");
 const tokenAddress = ref("");
 
 //클릭 방지
-const isDisabled = ref(true);
+const isDisabled = ref(false);
 
 const selectedCoin = ref("ETH");
 const icon_url = ref(`/images/logos/${selectedCoin.value}.png`);
@@ -343,7 +343,7 @@ const getBalance = async () => {
     }
     console.log(form);
     var response = await axios.post(url, form);
-    console.log("test", response.data.balance);
+
     balance.value = toMoney2(response.data.balance);
     isDisabled.value = false;
   } catch (error) {
