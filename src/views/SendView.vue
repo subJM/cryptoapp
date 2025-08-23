@@ -139,7 +139,7 @@
             : 'rgb(205 191 221)',
           borderRadius: '25px',
         }"
-        :disabled="true"
+        :disabled="isDisabled"
         @click.prevent="Toast"
       >
         Send Token
