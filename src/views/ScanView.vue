@@ -79,11 +79,28 @@ async function stopScan() {
   } catch {}
 }
 
+// 스캔 영역 높이를 보이는 창 크기에 딱 맞추기
+function setScanViewport() {
+  const vh = window.visualViewport?.height || window.innerHeight;
+  document.documentElement.style.setProperty("--scan-h", vh + "px");
+}
+
 onMounted(() => {
+  setScanViewport();
+  const vv = window.visualViewport;
+  vv?.addEventListener("resize", setScanViewport, { passive: true });
+  window.addEventListener("resize", setScanViewport, { passive: true });
+  window.addEventListener("orientationchange", () =>
+    setTimeout(setScanViewport, 100)
+  );
   startScan().catch((e) => alert(e.message || e));
 });
 onBeforeUnmount(() => {
   stopScan();
+  const vv = window.visualViewport;
+  vv?.removeEventListener("resize", setScanViewport);
+  window.removeEventListener("resize", setScanViewport);
+  window.removeEventListener("orientationchange", setScanViewport);
 });
 </script>
 
