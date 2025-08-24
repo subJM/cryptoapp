@@ -105,7 +105,7 @@ onBeforeUnmount(() => {
 #reader video {
   position: absolute;
   inset: 0;
-  width: 100%;
+  /* width: 100%; */
   height: 100%;
   object-fit: cover; /* 여백 없이 꽉 채우기 */
 }
