@@ -2,9 +2,7 @@
   <TopBackVue back="/home"></TopBackVue>
 
   <!-- PAGE CONTENT -->
-  <div
-    class="page__content page__content--with-header page__content--with-bottom-nav"
-  >
+  <div class="page__content page__content--with-header page__content--with-bottom-nav">
     <!-- <div class="search__form">
       <form>
         <input
@@ -39,11 +37,7 @@
       <div>거래내역이 없습니다</div>
     </div>
     <div class="cards cards--11">
-      <div
-        v-for="history in historyList"
-        :key="history.id"
-        :style="{ width: '100%' }"
-      >
+      <div v-for="history in historyList" :key="history.id" :style="{ width: '100%' }">
         <div
           class="text-start"
           :style="{
@@ -150,8 +144,8 @@ const getHistory = async () => {
         el.departDate = false;
       }
 
-      el.amount = Number(el.amount).toFixed(3);
-      el.usedFee = Number(el.usedFee).toFixed(5);
+      el.amount = Number(el.amount).toFixed(8);
+      el.usedFee = Number(el.usedFee).toFixed(8);
       history.push(el);
     });
   }

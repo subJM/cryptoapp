@@ -18,14 +18,10 @@
       <div
         class="swiper-container slider-portfolio slider-portfolio--round-corners slider-init mb-20"
       >
-        <div
-          class="swiper-slide slider-portfolio__slide slider-portfolio__slide--1h"
-        >
+        <div class="swiper-slide slider-portfolio__slide slider-portfolio__slide--1h">
           <div class="slider-portfolio__caption caption">
             <div class="caption__content">
-              <router-link
-                :to="`/history/${wallet.token_name}/${wallet.address}`"
-              >
+              <router-link :to="`/history/${wallet.token_name}/${wallet.address}`">
                 <h2 class="caption__title">
                   <img
                     :src="`images/logos/${wallet.token_name}.png`"
@@ -50,10 +46,7 @@
                 </div>
                 <div class="caption__info">
                   <b>Amount</b>
-                  <b
-                    >{{ formatBalance(wallet.balance) }}
-                    {{ wallet.token_name }}</b
-                  >
+                  <b>{{ formatBalance(wallet.balance) }} {{ wallet.token_name }}</b>
                 </div>
               </router-link>
             </div>
@@ -74,9 +67,7 @@
       <div
         class="swiper-container slider-portfolio slider-portfolio--round-corners slider-init mb-40"
       >
-        <div
-          class="swiper-slide slider-portfolio__slide slider-portfolio__slide--1h"
-        >
+        <div class="swiper-slide slider-portfolio__slide slider-portfolio__slide--1h">
           <div class="slider-portfolio__caption caption">
             <div class="caption__content">
               <div
@@ -104,7 +95,7 @@ import "swiper/css/effect-cards";
 // import required modules
 import { EffectCards } from "swiper/modules";
 import { onMounted, ref } from "vue";
-import axios from "axios";
+import axios from "@/lib/api";
 import { useRouter } from "vue-router";
 const router = useRouter();
 
@@ -122,12 +113,13 @@ const getTronAddress = async () => {
   try {
     const form = { user_id: user_id };
     var response = await axios.post(
-      // "https://lottwallet.org:3000/tron/getTronAddress",
-      "https://lottwallet.org:3000/lott/getEthAddress",
+      // "/tron/getTronAddress",
+      "/api/users/getEthAddress",
       form
     );
-    // localStorage.setItem("eth_address", response.data);
+    console.log("eth_address", JSON.stringify(response.data));
     localStorage.setItem("eth_address", response.data.address);
+    // localStorage.setItem("tron_address", response.data.address);
 
     address.value = response.data.address;
   } catch (error) {
@@ -139,14 +131,10 @@ const getTronAddress = async () => {
 const getAddressBalance = async () => {
   const form = {
     user_srl: localStorage.getItem("user_srl"),
-    user_id: localStorage.getItem("user_id"),
-    address: localStorage.getItem("eth_address"),
+    address: localStorage.getItem("tron_address"),
     // token_name: "ETH",
   };
-  const res = await axios.post(
-    "https://lottwallet.org:3000/wallet/getUserWallet",
-    form
-  );
+  const res = await axios.post("/api/wallet/getAddressBalance", form);
   const resData = res.data;
   if (resData.result == "success") {
     walletList.value = resData.data;
@@ -158,15 +146,9 @@ onMounted(() => {
     .then(async () => {
       try {
         //지갑주소로 체인에 연결해 잔고 가져오기
-        const form = {
-          user_id: localStorage.getItem("user_id"),
-          address: address.value,
-        };
-        var response = await axios.post(
-          "https://lottwallet.org:3000/lott/getAddressBalance",
-          form
-        );
-        balance.value = Number(response.data.balance).toFixed(3);
+        const form = { address: address.value };
+        var response = await axios.post("/api/wallet/getAddressBalance", form);
+        balance.value = Number(response.data.balance).toFixed(8);
       } catch (error) {
         console.error("Error fetching the- address:", error);
       }
@@ -179,7 +161,7 @@ onMounted(() => {
 });
 
 const formatBalance = (val) => {
-  return Number(val).toFixed(5);
+  return Number(val).toFixed(8);
 };
 
 const reloadBalance = async () => {
@@ -205,32 +187,29 @@ const performReloadBalance = async () => {
       // 토큰별 요청 URL과 데이터 설정
       switch (el.token_name) {
         case "ETH":
-          form = {
-            user_id: localStorage.getItem("user_id"),
-            address: address.value,
-          };
-          url = "https://lottwallet.org:3000/lott/getAddressBalance";
+          form = { address: address.value };
+          url = "/api/wallet/getAddressBalance";
           break;
         case "EVC":
           form = {
-            user_id: user_id,
-            address: localStorage.getItem("eth_address"),
+            userid: user_id,
+            address: localStorage.getItem("tron_address"),
           };
-          url = "https://lottwallet.org:3000/lott/getAddressTokenBalance";
+          url = "/api/lott/getAddressTokenBalance";
           break;
         case "TRON":
           form = {
-            user_id: user_id,
-            address: localStorage.getItem("eth_address"),
+            userid: user_id,
+            address: localStorage.getItem("tron_address"),
           };
-          url = "https://lottwallet.org:3000/tron/getAddressBalance";
+          url = "/api/lott/getAddressBalance";
           break;
         case "LOTT":
           form = {
-            user_id: user_id,
+            userid: user_id,
             address: address.value,
           };
-          url = "https://lottwallet.org:3000/lott/getAddressTokenBalance";
+          url = "/api/lott/getAddressTokenBalance";
           break;
         default:
           continue; // 정의되지 않은 토큰은 스킵
@@ -240,10 +219,8 @@ const performReloadBalance = async () => {
       try {
         const response = await axios.post(url, form);
         const newBalance = response.data.balance;
-
-        console.log(response);
-        console.log(newBalance);
-
+        // console.log(el.balance);
+        // console.log(newBalance);
         if (el.balance != newBalance) {
           // 잔액 변경된 경우 업데이트 요청
           const updateForm = {
@@ -252,9 +229,9 @@ const performReloadBalance = async () => {
             token_name: el.token_name,
             beforeBalance: el.balance,
             balance: newBalance,
-            address: localStorage.getItem("eth_address"),
+            address: localStorage.getItem("tron_address"),
           };
-          const updateUrl = "https://lottwallet.org:3000/wallet/updateWallet";
+          const updateUrl = "/api/wallet/updateWallet";
           await axios.post(updateUrl, updateForm);
           window.location.reload();
         }

@@ -309,10 +309,7 @@ const getHaveCoin = async () => {
     };
     // console.log(form);
 
-    var res = await axios.post(
-      "https://lottwallet.org:3000/token/getTokenList",
-      form
-    );
+    var res = await axios.post("https://lottwallet.org:3000/token/getTokenList", form);
     const result = res.data;
     tokenList = result.data;
     isDisabled.value = false;
@@ -371,7 +368,7 @@ const getETHbalance = async () => {
 function toMoney2(val, fallback = "0.00") {
   if (val === null || val === undefined) return fallback;
   const n = parseFloat(String(val)); // "0.", "0", 0 모두 ok
-  return Number.isFinite(n) ? n.toFixed(4) : fallback; // toFixed는 문자열 반환
+  return Number.isFinite(n) ? n.toFixed(8) : fallback; // toFixed는 문자열 반환
 }
 
 //보낸 내역 체크
@@ -401,8 +398,8 @@ const getSendTRONHistory = async () => {
           departDate.value = false;
           el.departDate = false;
         }
-        el.amount = Number(el.amount).toFixed(3);
-        el.usedFee = Number(el.usedFee).toFixed(5);
+        el.amount = Number(el.amount).toFixed(8);
+        el.usedFee = Number(el.usedFee).toFixed(8);
         history.push(el);
       });
     }
@@ -430,8 +427,7 @@ const Toast = async () => {
       token_name: selectedCoin.value, // "ETH" 또는 "LOTT"(ERC-20)
       amount: amount.value,
       // ERC-20이면 반드시 토큰 주소 포함
-      token_address:
-        selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
+      token_address: selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
     };
 
     const url = "https://lottwallet.org:3000/lott/evmfeetest";
@@ -458,9 +454,7 @@ const Toast = async () => {
       const balanceEth = Number(est.balanceNative || 0);
       if (balanceEth < totalNeed) {
         ok = false;
-        warnMsg = `필요 ${totalNeed.toFixed(6)} ETH, 보유 ${balanceEth.toFixed(
-          6
-        )} ETH`;
+        warnMsg = `필요 ${totalNeed.toFixed(8)} ETH, 보유 ${balanceEth.toFixed(8)} ETH`;
       }
     } else {
       // ERC-20: 가스비만 필요(ETH)
@@ -468,9 +462,9 @@ const Toast = async () => {
       const balanceEth = Number(est.balanceNative || 0);
       if (balanceEth < feeOnly) {
         ok = false;
-        warnMsg = `가스비 필요 ${feeOnly.toFixed(
-          6
-        )} ETH, 보유 ${balanceEth.toFixed(6)} ETH`;
+        warnMsg = `가스비 필요 ${feeOnly.toFixed(8)} ETH, 보유 ${balanceEth.toFixed(
+          8
+        )} ETH`;
       }
     }
 
@@ -482,15 +476,15 @@ const Toast = async () => {
       `가스 한도: ~${gasLimit}`,
       `가스 가격: ~${gasPriceGwei} gwei`,
       (form.token_name || "").toUpperCase() === "ETH"
-        ? `예상 수수료: ~${feeNative.toFixed(6)} ETH / 총 필요량: ${Number(
+        ? `예상 수수료: ~${feeNative.toFixed(8)} ETH / 총 필요량: ${Number(
             est.required?.totalNeedNative || 0
-          ).toFixed(6)} ${symbol}`
-        : `예상 수수료(ETH): ~${feeNative.toFixed(6)} / 수수료만 필요`,
+          ).toFixed(8)} ${symbol}`
+        : `예상 수수료(ETH): ~${feeNative.toFixed(8)} / 수수료만 필요`,
       warnMsg ? `잔고 부족: ${warnMsg}` : "",
     ].filter(Boolean);
 
     // 화면에도 남기고 싶다면
-    estimated.value = feeNative.toFixed(6);
+    estimated.value = feeNative.toFixed(8);
 
     const result = await Swal.fire({
       title: "코인을 전송하시겠습니까?",
@@ -541,8 +535,7 @@ const sendToken = async () => {
       token_name: selectedCoin.value,
       amount: amount.value,
       // ERC-20이면 토큰 주소도 포함
-      token_address:
-        selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
+      token_address: selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
     };
 
     await requestCheck(sendForm); // 유효성 검증
