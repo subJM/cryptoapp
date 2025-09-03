@@ -309,7 +309,10 @@ const getHaveCoin = async () => {
     };
     // console.log(form);
 
-    var res = await axios.post("https://lottwallet.org:3000/token/getTokenList", form);
+    var res = await axios.post(
+      "https://lottwallet.org:3000/token/getTokenList",
+      form
+    );
     const result = res.data;
     tokenList = result.data;
     isDisabled.value = false;
@@ -427,7 +430,8 @@ const Toast = async () => {
       token_name: selectedCoin.value, // "ETH" 또는 "LOTT"(ERC-20)
       amount: amount.value,
       // ERC-20이면 반드시 토큰 주소 포함
-      token_address: selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
+      token_address:
+        selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
     };
 
     const url = "https://lottwallet.org:3000/lott/evmfeetest";
@@ -454,7 +458,9 @@ const Toast = async () => {
       const balanceEth = Number(est.balanceNative || 0);
       if (balanceEth < totalNeed) {
         ok = false;
-        warnMsg = `필요 ${totalNeed.toFixed(8)} ETH, 보유 ${balanceEth.toFixed(8)} ETH`;
+        warnMsg = `필요 ${totalNeed.toFixed(8)} ETH, 보유 ${balanceEth.toFixed(
+          8
+        )} ETH`;
       }
     } else {
       // ERC-20: 가스비만 필요(ETH)
@@ -462,9 +468,9 @@ const Toast = async () => {
       const balanceEth = Number(est.balanceNative || 0);
       if (balanceEth < feeOnly) {
         ok = false;
-        warnMsg = `가스비 필요 ${feeOnly.toFixed(8)} ETH, 보유 ${balanceEth.toFixed(
+        warnMsg = `가스비 필요 ${feeOnly.toFixed(
           8
-        )} ETH`;
+        )} ETH, 보유 ${balanceEth.toFixed(8)} ETH`;
       }
     }
 
@@ -535,7 +541,8 @@ const sendToken = async () => {
       token_name: selectedCoin.value,
       amount: amount.value,
       // ERC-20이면 토큰 주소도 포함
-      token_address: selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
+      token_address:
+        selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
     };
 
     await requestCheck(sendForm); // 유효성 검증
