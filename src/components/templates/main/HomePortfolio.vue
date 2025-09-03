@@ -18,10 +18,14 @@
       <div
         class="swiper-container slider-portfolio slider-portfolio--round-corners slider-init mb-20"
       >
-        <div class="swiper-slide slider-portfolio__slide slider-portfolio__slide--1h">
+        <div
+          class="swiper-slide slider-portfolio__slide slider-portfolio__slide--1h"
+        >
           <div class="slider-portfolio__caption caption">
             <div class="caption__content">
-              <router-link :to="`/history/${wallet.token_name}/${wallet.address}`">
+              <router-link
+                :to="`/history/${wallet.token_name}/${wallet.address}`"
+              >
                 <h2 class="caption__title">
                   <img
                     :src="`images/logos/${wallet.token_name}.png`"
@@ -46,7 +50,10 @@
                 </div>
                 <div class="caption__info">
                   <b>Amount</b>
-                  <b>{{ formatBalance(wallet.balance) }} {{ wallet.token_name }}</b>
+                  <b
+                    >{{ formatBalance(wallet.balance) }}
+                    {{ wallet.token_name }}</b
+                  >
                 </div>
               </router-link>
             </div>
@@ -67,7 +74,9 @@
       <div
         class="swiper-container slider-portfolio slider-portfolio--round-corners slider-init mb-40"
       >
-        <div class="swiper-slide slider-portfolio__slide slider-portfolio__slide--1h">
+        <div
+          class="swiper-slide slider-portfolio__slide slider-portfolio__slide--1h"
+        >
           <div class="slider-portfolio__caption caption">
             <div class="caption__content">
               <div
