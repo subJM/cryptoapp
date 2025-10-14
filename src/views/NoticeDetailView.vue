@@ -69,7 +69,7 @@ const changeTime = (datetime) => {
 };
 
 const getNoticeDetail = async () => {
-  const url = "https://lottwallet.org:3000/notice/getNoticeDetail";
+  const url = "/api/notice/getNoticeDetail";
   const form = {
     id: route.params.id,
   };

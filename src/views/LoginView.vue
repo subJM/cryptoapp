@@ -73,7 +73,7 @@ const form = reactive({
 const login = async () => {
   try {
     const res = await axios.post(
-      "https://lottwallet.org:3000/users/account/login",
+      "/api/users/account/login",
       form
     );
     // console.log(res);

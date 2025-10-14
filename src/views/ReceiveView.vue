@@ -88,7 +88,7 @@ onMounted(() => {
 //       user_srl: localStorage.getItem("user_srl"),
 //     };
 //     var response = await axios.post(
-//       "https://lottwallet.org:3000/lott/recreate/account",
+//       "/api/lott/recreate/account",
 //       form
 //     );
 //     var res = response.data;
