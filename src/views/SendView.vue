@@ -288,10 +288,7 @@ const getAddress = async () => {
       address.value = selected_address;
     } else {
       const form = { user_id: user_id };
-      var response = await axios.post(
-        "/api/users/getAddress",
-        form
-      );
+      var response = await axios.post("/api/users/getAddress", form);
       address.value = response.data;
     }
   } catch (error) {
@@ -307,10 +304,7 @@ const getHaveCoin = async () => {
     };
     // console.log(form);
 
-    var res = await axios.post(
-      "/api/token/getTokenList",
-      form
-    );
+    var res = await axios.post("/api/token/getTokenList", form);
     const result = res.data;
     tokenList = result.data;
     isDisabled.value = false;

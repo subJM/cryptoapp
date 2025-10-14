@@ -29,10 +29,7 @@ const getAddressBalance = async () => {
     user_srl: localStorage.getItem("user_srl"),
     // token_name: "ETH",
   };
-  const res = await axios.post(
-    "/api/wallet/getAddressBalance",
-    form
-  );
+  const res = await axios.post("/api/wallet/getAddressBalance", form);
   const resData = res.data;
   console.log(res.data);
   if (resData.result == "success") {
