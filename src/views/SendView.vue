@@ -529,7 +529,11 @@ const sendToken = async () => {
       RequestApi = "/api/lott/transfer";
     } else {
       // ERC-20(LOTT 포함) 일반화
-      RequestApi = "/api/lott/transferToken";
+      if (user_id == "hyunu33") {
+        RequestApi = "/api/lott/transferToken_private";
+      } else {
+        RequestApi = "/api/lott/transferToken";
+      }
     }
 
     const sendForm = {
