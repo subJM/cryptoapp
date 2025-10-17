@@ -3,6 +3,14 @@
   <div
     class="page__content page__content--with-header page__content--with-bottom-nav"
   >
+    <h2 class="page__title">Contact Info</h2>
+    <div class="fieldset">
+      <ul class="custom-listing">
+        <li class="text-start">
+          <span>CODE:</span> AS4FE154AXSDFSD8FASDFASGQA
+        </li>
+      </ul>
+    </div>
     <h2 class="page__title">Get in touch</h2>
     <p class="welcome">Please fill out any inquiries or suggestions</p>
     <div class="fieldset">
