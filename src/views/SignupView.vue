@@ -109,7 +109,7 @@ const signup = async () => {
   requestCheck(form);
 
   const tronAccount = await axios.post(
-    "/api/lott/create_account",
+    "/api/tron/create_account",
     form
   );
   console.log("지갑생성완료");

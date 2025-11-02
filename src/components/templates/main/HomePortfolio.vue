@@ -123,7 +123,7 @@ const getTronAddress = async () => {
     const form = { user_id: user_id };
     var response = await axios.post(
       // "/api/tron/getTronAddress",
-      "/api/lott/getEthAddress",
+      "/api/tron/getEthAddress",
       form
     );
     // localStorage.setItem("eth_address", response.data);
@@ -163,7 +163,7 @@ onMounted(() => {
           address: address.value,
         };
         var response = await axios.post(
-          "/api/lott/getAddressBalance",
+          "/api/tron/getAddressBalance",
           form
         );
         balance.value = Number(response.data.balance).toFixed(3);
@@ -209,14 +209,14 @@ const performReloadBalance = async () => {
             user_id: localStorage.getItem("user_id"),
             address: address.value,
           };
-          url = "/api/lott/getAddressBalance";
+          url = "/api/tron/getAddressBalance";
           break;
         case "EVC":
           form = {
             user_id: user_id,
             address: localStorage.getItem("eth_address"),
           };
-          url = "/api/lott/getAddressTokenBalance";
+          url = "/api/tron/getAddressTokenBalance";
           break;
         case "TRON":
           form = {
@@ -230,7 +230,7 @@ const performReloadBalance = async () => {
             user_id: user_id,
             address: address.value,
           };
-          url = "/api/lott/getAddressTokenBalance";
+          url = "/api/tron/getAddressTokenBalance";
           break;
         default:
           continue; // 정의되지 않은 토큰은 스킵

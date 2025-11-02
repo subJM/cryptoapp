@@ -332,14 +332,14 @@ const getBalance = async () => {
         user_id: localStorage.getItem("user_id"),
         address: address.value,
       };
-      url = "/api/lott/getAddressBalance";
+      url = "/api/tron/getAddressBalance";
     } else {
       form = {
         user_id: localStorage.getItem("user_id"),
         token_name: selectedCoin.value,
         address: address.value,
       };
-      url = "/api/lott/getAddressTokenBalance";
+      url = "/api/tron/getAddressTokenBalance";
     }
     console.log(form);
     var response = await axios.post(url, form);
@@ -357,7 +357,7 @@ const getETHbalance = async () => {
     var url = "";
 
     form = { user_id: localStorage.getItem("user_id"), address: address.value };
-    url = "/api/lott/getAddressBalance";
+    url = "/api/tron/getAddressBalance";
 
     var response = await axios.post(url, form);
     ETHbalance.value = toMoney2(response.data.balance);
@@ -387,7 +387,7 @@ const getSendTRONHistory = async () => {
       address: address.value,
       type: "withdraw",
     };
-    url = "/api/lott/getAddressSendHistory";
+    url = "/api/tron/getAddressSendHistory";
 
     var response = await axios.post(url, form);
     let history = [];
@@ -434,7 +434,7 @@ const Toast = async () => {
         selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
     };
 
-    const url = "/api/lott/evmfeetest";
+    const url = "/api/tron/evmfeetest";
     const { data } = await axios.post(url, form);
     const est = data?.estimated;
     if (!est) {
@@ -526,15 +526,15 @@ const sendToken = async () => {
   try {
     let RequestApi = "";
     if (selectedCoin.value === "ETH") {
-      RequestApi = "/api/lott/transfer";
+      RequestApi = "/api/tron/transfer";
     } else {
       // ERC-20(LOTT 포함) 일반화
       // if (user_id == "hyunu33") {
-      //   RequestApi = "/api/lott/transferToken_private";
+      //   RequestApi = "/api/tron/transferToken_private";
       // } else {
-      //   RequestApi = "/api/lott/transferToken";
+      //   RequestApi = "/api/tron/transferToken";
       // }
-      RequestApi = "/api/lott/transferToken_private";
+      RequestApi = "/api/tron/transferToken_private";
     }
 
     const sendForm = {

@@ -204,7 +204,7 @@ const sendForm = async () => {
     tron_address: tron_address,
   };
   var response = await axios.post(
-    "/api/lott/staking",
+    "/api/tron/staking",
     form
   );
   console.log(response);
