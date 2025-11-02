@@ -211,7 +211,7 @@ const performReloadBalance = async () => {
           };
           url = "/api/tron/getAddressBalance";
           break;
-        case "EVC":
+        case "WIN":
           form = {
             user_id: user_id,
             address: localStorage.getItem("address"),
