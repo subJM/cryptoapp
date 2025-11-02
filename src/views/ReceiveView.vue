@@ -93,7 +93,7 @@ onMounted(() => {
 //     );
 //     var res = response.data;
 //     if (res.result == "success") {
-//       localStorage.setItem("eth_address", res.address);
+//       localStorage.setItem("address", res.address);
 //       eth_address.value = res.address;
 //       console.log(res.address);
 //       window.location.reload();

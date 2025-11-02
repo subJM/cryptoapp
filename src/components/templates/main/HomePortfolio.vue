@@ -123,11 +123,11 @@ const getTronAddress = async () => {
     const form = { user_id: user_id };
     var response = await axios.post(
       // "/api/tron/getTronAddress",
-      "/api/tron/getEthAddress",
+      "/api/tron/getAddress",
       form
     );
     // localStorage.setItem("eth_address", response.data);
-    localStorage.setItem("eth_address", response.data.address);
+    localStorage.setItem("address", response.data.address);
 
     address.value = response.data.address;
   } catch (error) {
