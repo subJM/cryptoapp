@@ -31,10 +31,7 @@ const getAddressBalance = async () => {
     address: localStorage.getItem("address"),
     // token_name: "ETH",
   };
-  const res = await axios.post(
-    "/api/tron/getAddressTokenBalance",
-    form
-  );
+  const res = await axios.post("/api/tron/getAddressTokenBalance", form);
   const resData = res.data;
   // console.log("LOTT getAddressBalance", resData.balance);
   balance.value = parseInt(resData.balance);

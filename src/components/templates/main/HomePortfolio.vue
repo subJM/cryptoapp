@@ -143,10 +143,7 @@ const getAddressBalance = async () => {
     address: localStorage.getItem("address"),
     // token_name: "ETH",
   };
-  const res = await axios.post(
-    "/api/wallet/getUserWallet",
-    form
-  );
+  const res = await axios.post("/api/wallet/getUserWallet", form);
   const resData = res.data;
   if (resData.result == "success") {
     walletList.value = resData.data;
@@ -162,10 +159,7 @@ onMounted(() => {
           user_id: localStorage.getItem("user_id"),
           address: address.value,
         };
-        var response = await axios.post(
-          "/api/tron/getAddressBalance",
-          form
-        );
+        var response = await axios.post("/api/tron/getAddressBalance", form);
         balance.value = Number(response.data.balance).toFixed(3);
       } catch (error) {
         console.error("Error fetching the- address:", error);
