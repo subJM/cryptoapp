@@ -44,7 +44,7 @@ import { ref, onMounted } from "vue";
 import VueQrcode from "vue-qrcode";
 
 // const coin_name = ref("LOTT");
-const eth_address = ref(localStorage.getItem("eth_address"));
+const eth_address = ref(localStorage.getItem("address"));
 
 const Toast = Swal.mixin({
   toast: true,
