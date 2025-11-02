@@ -284,10 +284,10 @@ if (user_id == "") {
 
 const getAddress = async () => {
   try {
-    const eth_address = localStorage.getItem("eth_address");
+    const address = localStorage.getItem("address");
 
-    if (eth_address != null) {
-      address.value = eth_address;
+    if (address != null) {
+      address.value = address;
     } else {
       const form = { user_id: user_id };
       var response = await axios.post(

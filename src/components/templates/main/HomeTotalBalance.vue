@@ -28,7 +28,7 @@ const getAddressBalance = async () => {
   const form = {
     user_id: localStorage.getItem("user_id"),
     user_srl: localStorage.getItem("user_srl"),
-    address: localStorage.getItem("eth_address"),
+    address: localStorage.getItem("address"),
     // token_name: "ETH",
   };
   const res = await axios.post(

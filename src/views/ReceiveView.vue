@@ -7,7 +7,7 @@
     <div :style="{ padding: '20px' }">
       <div>
         <!-- :value="`http://evc-w.io/send/${coin_name}/${tron_address}`" -->
-        <!-- :value="`${eth_address}`" -->
+        <!-- :value="`${address}`" -->
         <vue-qrcode
           :value="`https://lottwallet.org/send/${coin_name}/${tron_address}`"
           :scale="8"
@@ -20,7 +20,7 @@
           type="text"
           class="form-control"
           id="textToCopy"
-          :value="eth_address"
+          :value="address"
           placeholder=""
           :style="{ height: '50px' }"
           ref="textToCopy"
@@ -44,7 +44,7 @@ import { ref, onMounted } from "vue";
 import VueQrcode from "vue-qrcode";
 
 // const coin_name = ref("LOTT");
-const eth_address = ref(localStorage.getItem("address"));
+const address = ref(localStorage.getItem("address"));
 
 const Toast = Swal.mixin({
   toast: true,
@@ -81,8 +81,8 @@ onMounted(() => {
 });
 
 // const recreate_account = async () => {
-//   console.log(eth_address.value);
-//   if (eth_address.value == "" || eth_address.value == undefined) {
+//   console.log(address.value);
+//   if (address.value == "" || address.value == undefined) {
 //     const form = {
 //       user_id: localStorage.getItem("user_id"),
 //       user_srl: localStorage.getItem("user_srl"),
@@ -94,7 +94,7 @@ onMounted(() => {
 //     var res = response.data;
 //     if (res.result == "success") {
 //       localStorage.setItem("address", res.address);
-//       eth_address.value = res.address;
+//       address.value = res.address;
 //       console.log(res.address);
 //       window.location.reload();
 //     }
