@@ -34,7 +34,7 @@
                 class="required text-center"
               >
                 <option value="TRON" selected>TRON (TRX)</option>
-                <option value="WIN" :disabled="true">WIN (TRON)</option>
+                <option value="LOTT" :disabled="true">LOTT (TRON)</option>
                 <!-- <option value="ETH">ETH (Ethereum)</option>
                 <option value="BTC">BTC (Bitcoin)</option> -->
               </select>
@@ -130,7 +130,7 @@
       </div>
       <div class="mt-4">
         * 스테이킹은 타입 <span :style="{ color: '#b8ff6d' }">ENERGY</span> 는
-        <span :style="{ color: 'red' }">WIN</span> 토큰을 사용시
+        <span :style="{ color: 'red' }">LOTT</span> 토큰을 사용시
         <span :style="{ color: '#b8ff6d' }"
           >스마트 컨트랙트 실행 비용을 충당</span
         >하는 데 사용됩니다

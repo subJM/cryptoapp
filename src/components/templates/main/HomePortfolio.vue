@@ -127,11 +127,35 @@ const getTronAddress = async () => {
       form
     );
     // localStorage.setItem("address", response.data);
+    if (response.data.address == null) {
+      recreate_account();
+    }
     localStorage.setItem("address", response.data.address);
 
     address.value = response.data.address;
   } catch (error) {
     console.error("Error fetching the address:", error);
+  }
+};
+
+const recreate_account = async () => {
+  console.log(address.value);
+  if (address.value == "" || address.value == undefined) {
+    const form = {
+      user_id: localStorage.getItem("user_id"),
+      user_srl: localStorage.getItem("user_srl"),
+    };
+    var response = await axios.post(
+      "/api/tron/recreate/account",
+      form
+    );
+    var res = response.data;
+    if (res.result == "success") {
+      localStorage.setItem("address", res.address);
+      address.value = res.address;
+      console.log(res.address);
+      window.location.reload();
+    }
   }
 };
 
