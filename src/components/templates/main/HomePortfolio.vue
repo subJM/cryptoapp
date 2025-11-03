@@ -113,7 +113,6 @@ const address = ref("");
 const balance = ref("");
 const isLoading = ref(false);
 const walletList = ref([]);
-const currentAddr = address.value || localStorage.getItem("address");
 const user_id = localStorage.getItem("user_id");
 if (!user_id) {
   router.push("/");
@@ -221,31 +220,31 @@ const performReloadBalance = async () => {
       console.log("performReloadBalance" + el.token_name);
       // 토큰별 요청 URL과 데이터 설정
       switch (el.token_name) {
-        case "ETH":
-          form = {
-            user_id: localStorage.getItem("user_id"),
-            address: currentAddr,
-          };
-          url = "/api/tron/getAddressBalance";
-          break;
+        // case "ETH":
+        //   form = {
+        //     user_id: localStorage.getItem("user_id"),
+        //     address: address.value,
+        //   };
+        //   url = "/api/tron/getAddressBalance";
+        //   break;
         case "WIN":
           form = {
             user_id: user_id,
-            address: currentAddr,
+            address: localStorage.getItem("address"),
           };
           url = "/api/tron/getAddressTokenBalance";
           break;
         case "TRON":
           form = {
             user_id: user_id,
-            address: currentAddr,
+            address: localStorage.getItem("address"),
           };
           url = "/api/tron/getAddressBalance";
           break;
         case "LOTT":
           form = {
             user_id: user_id,
-            address: currentAddr,
+            address: address.value,
           };
           url = "/api/tron/getAddressTokenBalance";
           break;
