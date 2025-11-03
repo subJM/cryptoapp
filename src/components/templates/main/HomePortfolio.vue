@@ -113,50 +113,54 @@ const address = ref("");
 const balance = ref("");
 const isLoading = ref(false);
 const walletList = ref([]);
+const currentAddr = address.value || localStorage.getItem("address");
 const user_id = localStorage.getItem("user_id");
-if (user_id == "") {
+if (!user_id) {
   router.push("/");
 }
 //이더리움 주소 가져오기 s
 const getTronAddress = async () => {
   try {
-    const form = { user_id: user_id };
-    var response = await axios.post(
-      // "/api/tron/getTronAddress",
-      "/api/tron/getAddress",
-      form
-    );
-    // localStorage.setItem("address", response.data);
-    if (response.data.address == null) {
-      recreate_account();
-    }
-    localStorage.setItem("address", response.data.address);
+    const form = { user_id };
+    const { data } = await axios.post("/api/tron/getAddress", form);
 
-    address.value = response.data.address;
+    const addr = data?.address;
+    const invalid =
+      !addr || typeof addr !== "string" || addr.trim().length < 20; // 길이/형식 간단 검증
+
+    if (invalid) {
+      // 주소 재생성
+      const newAddr = await recreate_account();
+      if (!newAddr) throw new Error("Failed to recreate address");
+
+      localStorage.setItem("address", newAddr);
+      address.value = newAddr;
+      return newAddr; // ★ 중요: 여기서 끝!
+    }
+
+    localStorage.setItem("address", addr);
+    address.value = addr;
+    return addr;
   } catch (error) {
     console.error("Error fetching the address:", error);
+    return null;
   }
 };
 
+// 주소 재생성 (리로드하지 않고 값을 리턴)
 const recreate_account = async () => {
-  console.log(address.value);
-  if (address.value == "" || address.value == undefined) {
-    const form = {
-      user_id: localStorage.getItem("user_id"),
-      user_srl: localStorage.getItem("user_srl"),
-    };
-    var response = await axios.post(
-      "/api/tron/recreate/account",
-      form
-    );
-    var res = response.data;
-    if (res.result == "success") {
-      localStorage.setItem("address", res.address);
-      address.value = res.address;
-      console.log(res.address);
-      window.location.reload();
-    }
+  const form = {
+    user_id: localStorage.getItem("user_id"),
+    user_srl: localStorage.getItem("user_srl"),
+  };
+  const { data } = await axios.post("/api/tron/recreate/account", form);
+
+  if (data?.result === "success" && data?.address) {
+    // 여기서 저장/리로드 하지 말고 값만 리턴
+    return data.address;
   }
+  console.error("recreate_account failed:", data);
+  return null;
 };
 
 //이더리움 잔고 DB에서 가져오기
@@ -174,26 +178,21 @@ const getAddressBalance = async () => {
   }
 };
 
-onMounted(() => {
-  getTronAddress()
-    .then(async () => {
-      try {
-        //지갑주소로 체인에 연결해 잔고 가져오기
-        const form = {
-          user_id: localStorage.getItem("user_id"),
-          address: address.value,
-        };
-        var response = await axios.post("/api/tron/getAddressBalance", form);
-        balance.value = Number(response.data.balance).toFixed(3);
-      } catch (error) {
-        console.error("Error fetching the- address:", error);
-      }
-    })
-    .then(async () => {
-      reloadBalance().then(async () => {
-        getAddressBalance();
-      });
-    });
+onMounted(async () => {
+  const addr = await getTronAddress();
+  if (!addr) return;
+
+  try {
+    // 체인 잔고
+    const form = { user_id: localStorage.getItem("user_id"), address: addr };
+    const response = await axios.post("/api/tron/getAddressBalance", form);
+    balance.value = Number(response.data.balance).toFixed(3);
+  } catch (error) {
+    console.error("Error fetching the address balance:", error);
+  }
+
+  await reloadBalance();
+  await getAddressBalance();
 });
 
 const formatBalance = (val) => {
@@ -225,28 +224,28 @@ const performReloadBalance = async () => {
         case "ETH":
           form = {
             user_id: localStorage.getItem("user_id"),
-            address: address.value,
+            address: currentAddr,
           };
           url = "/api/tron/getAddressBalance";
           break;
         case "WIN":
           form = {
             user_id: user_id,
-            address: localStorage.getItem("address"),
+            address: currentAddr,
           };
           url = "/api/tron/getAddressTokenBalance";
           break;
         case "TRON":
           form = {
             user_id: user_id,
-            address: localStorage.getItem("address"),
+            address: currentAddr,
           };
           url = "/api/tron/getAddressBalance";
           break;
         case "LOTT":
           form = {
             user_id: user_id,
-            address: address.value,
+            address: currentAddr,
           };
           url = "/api/tron/getAddressTokenBalance";
           break;
@@ -274,7 +273,10 @@ const performReloadBalance = async () => {
           };
           const updateUrl = "/api/wallet/updateWallet";
           await axios.post(updateUrl, updateForm);
-          window.location.reload();
+          // 화면 상태만 갱신
+          el.balance = newBalance; // 즉시 카드에 반영
+          // 필요하면 서버 기준 정합성을 위해 리스트 리패치
+          // await getAddressBalance();
         }
       } catch (error) {
         console.error(`Error updating balance for ${el.token_name}:`, error);
