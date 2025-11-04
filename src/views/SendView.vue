@@ -1,14 +1,14 @@
 <template>
-  <TopBackVue back="/home"></TopBackVue>
-  <!-- PAGE CONTENT -->
+  <TopBackVue back="/home" />
   <div
     class="page__content page__content--with-header page__content--with-bottom-nav"
     style="height: 100%"
   >
     <h2 class="page__title">Transfer</h2>
+
     <div class="fieldset">
       <div class="form">
-        <form id="Form" method="post" action="checkout.html">
+        <form id="Form" method="post" action="#">
           <div class="form__row">
             <div class="form__select">
               <select
@@ -21,32 +21,6 @@
                   v-for="token in tokenList"
                   :key="token.Id"
                   :value="token.token_name"
-                  :selected="token.token_name == ETH ? true : false"
-                >
-                  {{ token.token_name }} ({{ token.wallet }})
-                </option>
-                <!-- <option value="EVC" selected>EVC (TRON)</option> -->
-                <!-- <option value="TRON" selected>TRON (TRX)</option> -->
-                <!-- <option value="BTC">BTC (Bitcoin)</option> -->
-              </select>
-            </div>
-          </div>
-
-          <!-- 토큰일경우 아래하나더 생기지만 필요없이  -->
-          <div class="form__row" v-show="isToken">
-            <div class="form__select">
-              <select
-                v-model="token_name"
-                id="select_token"
-                name="select_token"
-                class="required text-center"
-              >
-                <!-- <option value="ETH" selected>ETH (Ethereum)</option> -->
-                <option
-                  v-for="token in tokenList"
-                  :key="token.Id"
-                  :value="token.token_name"
-                  :selected="token.token_name == ETH ? true : false"
                 >
                   {{ token.token_name }} ({{ token.wallet }})
                 </option>
@@ -56,45 +30,37 @@
 
           <div class="form__row">
             <div>
-              <span
-                :style="{
-                  fontSize: '1.6rem',
-                  fontWeight: '600',
-                }"
-                >TO :
-              </span>
+              <span :style="{ fontSize: '1.6rem', fontWeight: '600' }">TO : </span>
               <input
                 type="text"
-                name="Text"
                 v-model="to_address"
-                value=""
                 class="form__input required text-end to_address"
                 placeholder="type Address"
               />
             </div>
           </div>
+
           <div class="form__row d-flex align-items-center justify-space">
             <div class="form__coin-icon text-start">
               <span class="p-0">{{ selectedCoin }}:</span>
             </div>
             <input
               type="number"
-              name="Text"
-              value=""
               class="form__input text-end to_amount"
               placeholder="type send amount"
               autocomplete="off"
               v-model="amount"
+              min="0"
+              step="any"
             />
             <span class="form__coin-icon">
-              <img :src="`${icon_url}`" alt="" title="" />
+              <img :src="icon_url" alt="" title="" />
             </span>
           </div>
-
-          <!-- <div class="form__coin-total">2,465.00 LOTT</div> -->
         </form>
       </div>
     </div>
+
     <h2 class="page__title">Wallet address</h2>
     <div class="fieldset">
       <div class="form">
@@ -102,41 +68,39 @@
         <div class="form__row">
           <input
             type="text"
-            name="address"
-            :value="`${address}`"
+            :value="address"
             class="form__input required text-end"
             readonly
           />
         </div>
+
         <div class="text-start">balance :</div>
         <div class="form__row">
           <input
             type="text"
-            name="Text"
             :value="`${balance} ${selectedCoin}`"
             class="form__input required text-end"
             readonly
           />
-          <span v-show="ETHbalance < 5"
-            >ETH가 0.05보다 작으면 전송이 실패할 수 있습니다 (
+          <span v-show="TRXbalance < 5">
+            TRX가 5보다 작으면 전송이 실패할 수 있습니다 (
             <input
-              :value="`현재 ${ETHbalance} ETH`"
+              :value="`현재 ${TRXbalance} TRX`"
               :readonly="true"
               style="background-color: transparent; color: red"
-            />)</span
-          >
+            />)
+          </span>
         </div>
       </div>
     </div>
+
     <div class="d-grid gap-2">
       <button
-        type="submit"
+        type="button"
         :style="{
           height: '50px',
           fontSize: '16px',
-          backgroundColor: isDisabled
-            ? 'rgb(200, 200, 200)' // 비활성화 시 색상
-            : 'rgb(205 191 221)',
+          backgroundColor: isDisabled ? 'rgb(200, 200, 200)' : 'rgb(205 191 221)',
           borderRadius: '25px',
         }"
         :disabled="isDisabled"
@@ -145,17 +109,18 @@
         Send Token
       </button>
     </div>
+
     <h2 class="page__title pt-5">History</h2>
 
-    <!-- 최근 전송 히스토리 -->
     <div
       class="d-flex justify-content-center align-items-center"
-      v-if="sendHistory == ''"
+      v-if="sendHistoryData.length === 0"
       :style="{ height: '80%' }"
     >
       <div>거래내역이 없습니다</div>
     </div>
-    <div class="cards cards--11">
+
+    <div class="cards cards--11" v-else>
       <div
         v-for="history in sendHistoryData"
         :key="history.id"
@@ -163,25 +128,14 @@
       >
         <div
           class="text-start"
-          :style="{
-            color: '#C7C7C7',
-            fontSize: '12px',
-          }"
+          :style="{ color: '#C7C7C7', fontSize: '12px' }"
           v-if="history.departDate"
         >
           {{ changeDate(history.create_at) }}
         </div>
         <a class="card-coin" href="#">
           <div class="card-coin__logo">
-            <!-- <img src="/images/icons/minus-solid.svg" alt="" title="" /> -->
-            <img :src="`${icon_url}`" alt="" title="" />
-            <!-- <span
-              class="me-4"
-              :style="{
-                fontSize: '12px',
-              }"
-              >{{ history.status }}</span
-            > -->
+            <img :src="icon_url" alt="" title="" />
             <span
               class="text-start"
               :style="{
@@ -191,8 +145,6 @@
                 width: '130px',
               }"
             >
-              <!-- <span v-if="history.IsExternalTrade == 'yes'">외부</span>
-              <span v-if="history.IsExternalTrade == 'no'">내부</span> -->
               {{ history.to_address }}
               <b>{{ changeTime(history.create_at) }}</b>
             </span>
@@ -200,7 +152,8 @@
           <div class="card-coin__price">
             <strong :style="{ fontSize: '12px' }"
               >{{ history.amount }} {{ history.token_name }}</strong
-            ><span class="plus" :style="{ fontSize: '12px' }"
+            >
+            <span class="plus" :style="{ fontSize: '12px' }"
               >{{ history.usedFee }} Fee</span
             >
           </div>
@@ -212,87 +165,54 @@
 
 <script setup>
 import TopBackVue from "@/components/templates/inc/TopBack.vue";
-
 import axios from "axios";
 import { onMounted, ref, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
-
 import Swal from "sweetalert2";
 import moment from "moment-timezone";
+
 const router = useRouter();
 const route = useRoute();
 
 const address = ref("");
-const balance = ref("");
-const ETHbalance = ref("");
-const to_address = ref(route.params.address);
+const balance = ref("0.00000000");
+const TRXbalance = ref(0); // 네이티브 TRX
+const to_address = ref(route.params.address || "");
 const amount = ref("0");
-const token_name = ref("ETH");
 const estimated = ref(0);
 
 const sendHistoryData = ref([]);
-const departDate = ref(true);
 const create_date = ref("");
-const tokenAddress = ref("");
 
-//클릭 방지
 const isDisabled = ref(false);
 
-const selectedCoin = ref("ETH");
+const selectedCoin = ref("TRON"); // 기본 TRON(네이티브)
 const icon_url = ref(`/images/logos/${selectedCoin.value}.png`);
 
-let tokenList = ref([]);
+const tokenList = ref([]); // [{ wallet:'TRON', token_name:'TRON'|'LOTT', ... }]
 
-//토큰 리스트 보기
-let isToken = false;
-//TQoSpRDcRMqdhnJmSPuqaspmyWBJRcvbVP
-
-watch(selectedCoin, (newSelectedCoin) => {
+watch(selectedCoin, async (newSelectedCoin) => {
   icon_url.value = `/images/logos/${newSelectedCoin}.png`;
-  if (newSelectedCoin == "LOTT") {
-    isToken = false;
-    tokenAddress.value = "0xbA93EF534094F8b7001ECe2691168140965341ab";
-  } else {
-    // isToken = true;
-    isToken = false;
-    tokenAddress.value = "";
-  }
-
-  // if (selectedCoin.value == "TRX") {
-  // }
-  console.log(selectedCoin.value);
-  getAddress().then(async () => {
-    getBalance();
-    getSendTRONHistory();
-  });
-});
-watch(token_name, () => {
-  // console.log(selectedCoin);
-  // if (selectedCoin.value == "TRON") {
-  //   getAddress().then(async () => {
-  //     getBalance();
-  //   });
-  //   console.log("check");
-  //   console.log(balance.value);
-  // }
+  await getAddress();
+  await getBalance();
+  await getSendHistory();
 });
 
-const user_id = localStorage.getItem("user_id");
-if (user_id == "") {
+const user_id = localStorage.getItem("user_id") || "";
+if (!user_id) {
   router.push("/");
 }
 
 const getAddress = async () => {
   try {
-    const address = localStorage.getItem("address");
-
-    if (address != null) {
-      address.value = address;
-    } else {
-      const form = { user_id: user_id };
-      var response = await axios.post("/api/users/getAddress", form);
-      address.value = response.data;
+    const saved = localStorage.getItem("address");
+    if (saved) {
+      address.value = saved;
+      return;
     }
+    const form = { user_id };
+    const { data } = await axios.post("/api/tron/getAddress", form);
+    address.value = data?.address || "";
   } catch (error) {
     console.error("Error fetching the address:", error);
   }
@@ -301,98 +221,78 @@ const getAddress = async () => {
 const getHaveCoin = async () => {
   try {
     isDisabled.value = true;
-    const form = {
-      user_srl: localStorage.getItem("user_srl"),
-    };
-    // console.log(form);
-
-    var res = await axios.post("/api/token/getTokenList", form);
-    const result = res.data;
-    tokenList = result.data;
-    isDisabled.value = false;
+    const form = { user_srl: localStorage.getItem("user_srl") };
+    const { data } = await axios.post("/api/tron/getTokenList", form);
+    tokenList.value = data?.data || [];
   } catch (error) {
-    console.error("Error fetching the address:", error);
+    console.error("Error getHaveCoin:", error);
+  } finally {
+    isDisabled.value = false;
   }
 };
 
 const getBalance = async () => {
+  if (!address.value) return;
   try {
-    var form = {};
-    var url = "";
+    isDisabled.value = true;
+    let url = "";
+    let form = {};
 
-    isDisabled.value = true; //클릭방지
-    if (selectedCoin.value != "LOTT") {
-      form = {
-        user_id: localStorage.getItem("user_id"),
-        address: address.value,
-      };
-      url = "/api/tron/getAddressBalance";
-    } else {
-      form = {
-        user_id: localStorage.getItem("user_id"),
-        token_name: selectedCoin.value,
-        address: address.value,
-      };
+    if (selectedCoin.value === "LOTT") {
       url = "/api/tron/getAddressTokenBalance";
+      form = { address: address.value };
+    } else {
+      url = "/api/tron/getAddressBalance";
+      form = { address: address.value };
     }
-    console.log(form);
-    var response = await axios.post(url, form);
 
-    balance.value = toMoney2(response.data.balance);
-    isDisabled.value = false;
+    const res = await axios.post(url, form);
+    const val = Number(res?.data?.balance ?? 0);
+    balance.value = toMoney2(val);
   } catch (error) {
-    console.error("Error fetching the address:", error);
+    console.error("Error getBalance:", error);
+  } finally {
+    isDisabled.value = false;
   }
 };
 
-const getETHbalance = async () => {
+const getTRXbalance = async () => {
   try {
-    var form = {};
-    var url = "";
-
-    form = { user_id: localStorage.getItem("user_id"), address: address.value };
-    url = "/api/tron/getAddressBalance";
-
-    var response = await axios.post(url, form);
-    ETHbalance.value = toMoney2(response.data.balance);
-    console.log("getETHbalance : " + ETHbalance.value);
+    if (!address.value) return;
+    const { data } = await axios.post("/api/tron/getAddressBalance", {
+      address: address.value,
+    });
+    TRXbalance.value = Number(data?.balance ?? 0);
   } catch (error) {
-    console.error("Error fetching the address:", error);
+    console.error("Error getTRXbalance:", error);
   }
 };
 
 // 안전 변환 유틸
-function toMoney2(val, fallback = "0.00") {
+function toMoney2(val, fallback = "0.00000000") {
   if (val === null || val === undefined) return fallback;
-  const n = parseFloat(String(val)); // "0.", "0", 0 모두 ok
-  return Number.isFinite(n) ? n.toFixed(8) : fallback; // toFixed는 문자열 반환
+  const n = parseFloat(String(val));
+  return Number.isFinite(n) ? n.toFixed(8) : fallback;
 }
 
-//보낸 내역 체크
-const getSendTRONHistory = async () => {
+// 보낸 내역
+const getSendHistory = async () => {
   try {
-    var form = {};
-    var url = "";
-
-    form = {
+    const form = {
       user_srl: localStorage.getItem("user_srl"),
-      user_id: user_id,
-      coin_name: selectedCoin.value,
+      user_id,
+      coin_name: selectedCoin.value, // 'TRON' | 'LOTT'
       address: address.value,
       type: "withdraw",
     };
-    url = "/api/tron/getAddressSendHistory";
-
-    var response = await axios.post(url, form);
-    let history = [];
-    var responseData = response.data;
-    if (responseData.result == "success") {
-      responseData.data.forEach((el) => {
-        if (changeDate(el.create_at) != create_date.value) {
+    const { data } = await axios.post("/api/tron/getAddressSendHistory", form);
+    const history = [];
+    if (data?.result === "success") {
+      data.data.forEach((el) => {
+        if (changeDate(el.create_at) !== create_date.value) {
           create_date.value = changeDate(el.create_at);
           el.departDate = true;
         } else {
-          departDate.value = false;
           el.departDate = false;
         }
         el.amount = Number(el.amount).toFixed(8);
@@ -400,19 +300,15 @@ const getSendTRONHistory = async () => {
         history.push(el);
       });
     }
-    console.log(history);
     sendHistoryData.value = history;
   } catch (error) {
-    console.error("Error fetching the address:", error);
+    console.error("Error getSendHistory:", error);
   }
 };
 
-const changeDate = (datetime) => {
-  return moment(datetime).tz("Asia/Seoul").format("YY.MM.DD");
-};
-const changeTime = (datetime) => {
-  return moment(datetime).tz("Asia/Seoul").format("MM월DD일 HH시mm분");
-};
+const changeDate = (datetime) => moment(datetime).tz("Asia/Seoul").format("YY.MM.DD");
+const changeTime = (datetime) =>
+  moment(datetime).tz("Asia/Seoul").format("MM월DD일 HH시mm분");
 
 const Toast = async () => {
   try {
@@ -421,84 +317,51 @@ const Toast = async () => {
       user_id,
       from_address: address.value,
       to_address: to_address.value,
-      token_name: selectedCoin.value, // "ETH" 또는 "LOTT"(ERC-20)
+      token_name: selectedCoin.value, // 'TRON' or 'LOTT'
       amount: amount.value,
-      // ERC-20이면 반드시 토큰 주소 포함
-      token_address:
-        selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
     };
 
-    const url = "/api/tron/evmfeetest";
-    const { data } = await axios.post(url, form);
+    // Tron 수수료/에너지 추정
+    const { data } = await axios.post("/api/tron/energytest", form); // ← tron.js 라우트
     const est = data?.estimated;
-    if (!est) {
-      throw new Error("수수료 추정 결과가 없습니다.");
-    }
+    if (!est) throw new Error("수수료/에너지 추정 결과가 없습니다.");
 
-    // EIP-1559 우선, 없으면 legacy 사용
-    const feeNativeStr =
-      est.eip1559?.estimatedFeeNative ?? est.legacy?.estimatedFeeNative;
-    const feeNative = Number(feeNativeStr || 0);
-    const gasLimit = est.gasLimit;
-    const gasPriceGwei =
-      est.eip1559?.maxFeePerGasGwei ?? est.legacy?.gasPriceGwei ?? "N/A";
+    const isTRX = (form.token_name || "").toUpperCase() === "TRON";
+    const summaryLines = isTRX
+      ? [
+          `네트워크: Tron Mainnet`,
+          `예상 대역폭: ~${est.estimatedBandwidth} bytes`,
+          `보유 대역폭: ~${est.availableBandwidth} bytes`,
+          est.bandwidthDeficit > 0
+            ? `부족 대역폭: ${est.bandwidthDeficit} bytes`
+            : `부족 대역폭: 없음`,
+          `예상 TRX 비용: ~${Number(est.trxCost || 0).toFixed(6)} TRX`,
+        ]
+      : [
+          `네트워크: Tron Mainnet`,
+          `예상 에너지: ~${est.estimatedEnergy}`,
+          `보유 에너지: ~${est.availableEnergy}`,
+          est.energyDeficit > 0
+            ? `부족 에너지: ${est.energyDeficit}`
+            : `부족 에너지: 없음`,
+          `예상 TRX 비용(에너지 대납): ~${Number(est.trxCost || 0).toFixed(6)} TRX`,
+        ];
 
-    // 동적 잔고 검증
-    let ok = true;
-    let warnMsg = "";
-    if ((form.token_name || "").toUpperCase() === "ETH") {
-      // 총 필요량 = 전송액 + 가스비
-      const totalNeed = Number(est.required?.totalNeedNative || 0);
-      const balanceEth = Number(est.balanceNative || 0);
-      if (balanceEth < totalNeed) {
-        ok = false;
-        warnMsg = `필요 ${totalNeed.toFixed(8)} ETH, 보유 ${balanceEth.toFixed(
-          8
-        )} ETH`;
-      }
-    } else {
-      // ERC-20: 가스비만 필요(ETH)
-      const feeOnly = Number(est.required?.feeOnlyNative || feeNative);
-      const balanceEth = Number(est.balanceNative || 0);
-      if (balanceEth < feeOnly) {
-        ok = false;
-        warnMsg = `가스비 필요 ${feeOnly.toFixed(
-          8
-        )} ETH, 보유 ${balanceEth.toFixed(8)} ETH`;
-      }
-    }
-
-    // 사용자 표시용 요약
-    const network = est.network; // 예: mainnet(1)
-    const symbol = est.symbol || "ETH"; // 네이티브/표시 심볼
-    const summaryLines = [
-      `네트워크: ${network}`,
-      `가스 한도: ~${gasLimit}`,
-      `가스 가격: ~${gasPriceGwei} gwei`,
-      (form.token_name || "").toUpperCase() === "ETH"
-        ? `예상 수수료: ~${feeNative.toFixed(8)} ETH / 총 필요량: ${Number(
-            est.required?.totalNeedNative || 0
-          ).toFixed(8)} ${symbol}`
-        : `예상 수수료(ETH): ~${feeNative.toFixed(8)} / 수수료만 필요`,
-      warnMsg ? `잔고 부족: ${warnMsg}` : "",
-    ].filter(Boolean);
-
-    // 화면에도 남기고 싶다면
-    estimated.value = feeNative.toFixed(8);
+    estimated.value = Number(est.trxCost || 0).toFixed(6);
 
     const result = await Swal.fire({
       title: "코인을 전송하시겠습니까?",
       text: summaryLines.join("\n"),
-      icon: ok ? "warning" : "error",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: ok ? "#3085d6" : "#aaa",
+      confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: ok ? "Yes, send it!" : "잔고 부족",
+      confirmButtonText: "Yes, send it!",
       allowOutsideClick: false,
     });
 
-    if (ok && result.isConfirmed) {
-      await sendToken(); // 실제 전송
+    if (result.isConfirmed) {
+      await sendToken();
     }
   } catch (error) {
     console.error("수수료 추정 오류:", error?.message || error);
@@ -510,26 +373,13 @@ const Toast = async () => {
   }
 };
 
-var test = "TypeError: Cannot read properties of undefined (reading 'result')";
-console.log("test : " + test.includes("Transaction not found"));
-
 const sendToken = async () => {
   if (isDisabled.value) return;
   isDisabled.value = true;
 
   try {
-    let RequestApi = "";
-    if (selectedCoin.value === "ETH") {
-      RequestApi = "/api/tron/transfer";
-    } else {
-      // ERC-20(LOTT 포함) 일반화
-      // if (user_id == "hyunu33") {
-      //   RequestApi = "/api/tron/transferToken_private";
-      // } else {
-      //   RequestApi = "/api/tron/transferToken";
-      // }
-      RequestApi = "/api/tron/transferToken_private";
-    }
+    const RequestApi =
+      selectedCoin.value === "TRON" ? "/api/tron/transfer" : "/api/tron/transferToken"; // ← tron.js 라우트
 
     const sendForm = {
       user_srl: localStorage.getItem("user_srl"),
@@ -537,29 +387,22 @@ const sendToken = async () => {
       user_id,
       from_address: address.value,
       to_address: to_address.value,
-      token_name: selectedCoin.value,
+      token_name: selectedCoin.value, // 'TRON' | 'LOTT'
       amount: amount.value,
-      // ERC-20이면 토큰 주소도 포함
-      token_address:
-        selectedCoin.value !== "ETH" ? tokenAddress.value : undefined,
     };
 
-    await requestCheck(sendForm); // 유효성 검증
+    await requestCheck(sendForm);
 
     const { data: sendResult } = await axios.post(RequestApi, sendForm);
 
     if (sendResult.result === "success") {
-      Swal.fire({
-        title: "SENDING!",
-        text: "코인이 전송되었습니다",
-        icon: "success",
-      });
-      // TODO: 잔고 재조회/화면 갱신 로직
+      Swal.fire({ title: "SENDING!", text: "코인이 전송되었습니다", icon: "success" });
+      await Promise.all([getBalance(), getSendHistory(), getTRXbalance()]);
     } else if (sendResult.result === "block") {
       Swal.fire({
         title: "ERROR",
         text: sendResult.message || "잠겨있어 전송할 수 없습니다.",
-        icon: "error", // ← success → error 로 변경
+        icon: "error",
       });
     } else {
       Swal.fire({
@@ -580,13 +423,10 @@ const sendToken = async () => {
   }
 };
 
-onMounted(() => {
-  getHaveCoin();
-  getAddress().then(async () => {
-    getBalance();
-    getSendTRONHistory(); //히스토리 가져오기
-    getETHbalance();
-  });
+onMounted(async () => {
+  await getHaveCoin();
+  await getAddress();
+  await Promise.all([getBalance(), getSendHistory(), getTRXbalance()]);
 });
 
 const requestCheck = async (sendForm) => {
@@ -597,7 +437,7 @@ const requestCheck = async (sendForm) => {
     !sendForm.to_address ||
     !sendForm.token_name ||
     !sendForm.amount ||
-    parseFloat(sendForm.amount) <= 0 // 송금 금액이 0 이하인 경우 방지
+    parseFloat(sendForm.amount) <= 0
   ) {
     throw "Please fill in the empty space or check the input values.";
   }
